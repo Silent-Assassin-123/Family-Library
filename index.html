@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Library</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            <p id="modalMessage"></p>
+            <div class="modal-actions">
+                <button id="modalConfirmBtn" class="button confirm-button">OK</button>
+                <button id="modalCancelBtn" class="button cancel-button hidden">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="app" class="app-container">
+        <header class="app-header">
+            <h1 class="app-title">Family Library</h1>
+            <div class="auth-status" id="authStatus">
+                <span id="userEmail"></span>
+                <button id="signOutBtn" class="button sign-out-button hidden">Sign Out</button>
+            </div>
+        </header>
+
+        <nav class="tabs-nav" id="tabsNav">
+            <button class="tab-button active" data-tab="books">Books</button>
+            <button class="tab-button" data-tab="leaderboard">Leaderboard</button>
+            <button class="tab-button hidden" data-tab="admin" id="adminTab">Admin Panel</button>
+        </nav>
+
+        <section id="authSection" class="content-section auth-section active">
+            <div class="auth-card">
+                <h2>Welcome to Your Library!</h2>
+                <div class="input-group">
+                    <input type="email" id="emailInput" placeholder="Email">
+                </div>
+                <div class="input-group">
+                    <input type="password" id="passwordInput" placeholder="Password">
+                </div>
+                <div class="button-group">
+                    <button id="signInEmailBtn" class="button primary-button">Sign In with Email</button>
+                    <button id="signUpEmailBtn" class="button secondary-button">Sign Up with Email</button>
+                </div>
+                <div class="separator">OR</div>
+                <button id="signInGoogleBtn" class="button google-button">Sign In with Google</button>
+            </div>
+        </section>
+
+        <section id="booksSection" class="content-section books-section hidden">
+            <h2 class="section-title">Available Books</h2>
+            <div id="booksGrid" class="items-grid">
+                </div>
+        </section>
+
+        <section id="leaderboardSection" class="content-section leaderboard-section hidden">
+            <h2 class="section-title">Borrowed Books Leaderboard</h2>
+            <div id="leaderboardList" class="leaderboard-list">
+                </div>
+        </section>
+
+        <section id="adminSection" class="content-section admin-section hidden">
+            <h2 class="section-title">Admin Panel</h2>
+
+            <div class="admin-controls">
+                <button id="showAddBookModalBtn" class="button accent-button">Add New Book</button>
+            </div>
+
+            <h3 class="subsection-title">Manage Books</h3>
+            <div id="adminBooksList" class="items-grid">
+                </div>
+        </section>
+
+        <div class="modal-overlay hidden" id="bookModalOverlay">
+            <div class="modal-content book-form-modal">
+                <h3 id="bookModalTitle">Add New Book</h3>
+                <form id="bookForm" class="form-container">
+                    <input type="hidden" id="bookIdInput">
+                    <div class="input-group">
+                        <label for="bookTitle">Title:</label>
+                        <input type="text" id="bookTitle" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="bookAuthor">Author:</label>
+                        <input type="text" id="bookAuthor" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="bookGenre">Genre:</label>
+                        <input type="text" id="bookGenre">
+                    </div>
+                    <div class="button-group">
+                        <button type="submit" class="button primary-button">Save Book</button>
+                        <button type="button" id="cancelBookModalBtn" class="button cancel-button">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
