@@ -4,8 +4,595 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Family Library</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Embedded CSS -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Montserrat:wght@500;700&display=swap');
+
+        :root {
+            --color-black: #1a1a1a;
+            --color-dark-purple: #3a0ca3;
+            --color-medium-purple: #4361ee;
+            --color-light-purple: #b0c4de; /* A lighter blue-ish purple for text */
+            --color-red: #f72585;
+            --color-text-light: #e0e0e0;
+            --color-text-dark: #c1b2e6; /* Purple tint for subtle text */
+            --gradient-bg: linear-gradient(135deg, var(--color-black) 0%, #11082b 100%);
+            --gradient-card: linear-gradient(145deg, #2a0a6b, #1a063b);
+            --gradient-accent: linear-gradient(45deg, var(--color-red), #93064e);
+            --border-color: #5a189a;
+            --shadow-color: rgba(0, 0, 0, 0.4);
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--gradient-bg);
+            color: var(--color-text-light);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .app-container {
+            background: linear-gradient(160deg, #2c075b, #1f0542);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            width: 100%;
+            max-width: 1200px;
+            padding: 30px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .app-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.8em;
+            color: var(--color-light-purple);
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+            margin: 0;
+        }
+
+        .auth-status {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.1em;
+            color: var(--color-text-dark);
+        }
+
+        /* Tabs Navigation */
+        .tabs-nav {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            background: rgba(67, 97, 238, 0.2); /* Using RGB from --color-medium-purple-rgb */
+            border: 1px solid var(--border-color);
+            color: var(--color-light-purple);
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .tab-button:hover {
+            background: rgba(67, 97, 238, 0.4);
+            box-shadow: 0 0 15px rgba(67, 97, 238, 0.5);
+        }
+
+        .tab-button.active {
+            background: var(--color-medium-purple);
+            color: white;
+            box-shadow: 0 0 20px var(--color-medium-purple);
+            border-color: var(--color-medium-purple);
+        }
+
+        /* Content Sections */
+        .content-section {
+            padding: 25px;
+            background: var(--gradient-card);
+            border-radius: 12px;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+        }
+
+        .content-section.hidden {
+            display: none;
+        }
+
+        .section-title, .subsection-title {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--color-red);
+            font-size: 2.2em;
+            text-align: center;
+            margin-bottom: 25px;
+            text-shadow: 0 0 10px rgba(247, 37, 133, 0.4); /* Using RGB from --color-red-rgb */
+        }
+
+        .subsection-title {
+            font-size: 1.8em;
+            margin-top: 40px;
+            margin-bottom: 20px;
+        }
+
+        /* Auth Section */
+        .auth-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 400px;
+        }
+
+        .auth-card {
+            background: linear-gradient(160deg, #2a0c64, #18093d);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 8px 25px var(--shadow-color);
+            max-width: 450px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            text-align: center;
+        }
+
+        .auth-card h2 {
+            color: var(--color-light-purple);
+            font-size: 2.4em;
+            margin-bottom: 25px;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--color-text-dark);
+            font-size: 1.1em;
+            text-align: left;
+        }
+
+        input[type="email"],
+        input[type="password"],
+        input[type="text"] {
+            width: 100%;
+            padding: 14px 18px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: #2e0b5f;
+            color: var(--color-text-light);
+            font-size: 1.1em;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input[type="email"]::placeholder,
+        input[type="password"]::placeholder,
+        input[type="text"]::placeholder {
+            color: #a08dc0;
+        }
+
+        input[type="email"]:focus,
+        input[type="password"]:focus,
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--color-medium-purple);
+            box-shadow: 0 0 10px rgba(67, 97, 238, 0.5);
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .button {
+            padding: 14px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .primary-button {
+            background: var(--color-medium-purple);
+            color: white;
+        }
+
+        .primary-button:hover {
+            background: #5c7bff;
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.6);
+        }
+
+        .secondary-button {
+            background: var(--color-red);
+            color: white;
+        }
+
+        .secondary-button:hover {
+            background: #ff57a0;
+            box-shadow: 0 5px 15px rgba(247, 37, 133, 0.6);
+        }
+
+        .google-button {
+            background: #4285F4; /* Google Blue */
+            color: white;
+        }
+
+        .google-button:hover {
+            background: #3c7ae6;
+            box-shadow: 0 5px 15px rgba(66, 133, 244, 0.6);
+        }
+
+        .sign-out-button {
+            background: #6c757d;
+            color: white;
+            padding: 8px 15px;
+            font-size: 0.9em;
+        }
+
+        .sign-out-button:hover {
+            background: #5a6268;
+        }
+
+        .accent-button {
+            background: var(--gradient-accent);
+            color: white;
+            border: 1px solid var(--color-red);
+        }
+
+        .accent-button:hover {
+            opacity: 0.9;
+            box-shadow: 0 5px 15px rgba(247, 37, 133, 0.7);
+        }
+
+        .danger-button {
+            background: #dc3545;
+            color: white;
+        }
+
+        .danger-button:hover {
+            background: #c82333;
+        }
+
+        .edit-button {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .edit-button:hover {
+            background: #e0a800;
+        }
+
+        .confirm-button {
+            background: var(--color-medium-purple);
+            color: white;
+        }
+        .confirm-button:hover {
+            background: #5c7bff;
+        }
+
+        .cancel-button {
+            background: #6c757d;
+            color: white;
+        }
+        .cancel-button:hover {
+            background: #5a6268;
+        }
+
+        .separator {
+            color: var(--color-text-dark);
+            margin: 20px 0;
+            position: relative;
+            text-align: center;
+        }
+
+        .separator::before,
+        .separator::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 1px;
+            background-color: var(--border-color);
+        }
+
+        .separator::before {
+            left: 0;
+        }
+
+        .separator::after {
+            right: 0;
+        }
+
+        /* Grids and Spacing for Items */
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            padding: 20px 0;
+        }
+
+        .book-card {
+            background: var(--gradient-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 6px 20px var(--shadow-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 200px;
+        }
+
+        .book-card h3 {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--color-light-purple);
+            font-size: 1.8em;
+            margin-top: 0;
+            margin-bottom: 10px;
+            line-height: 1.2;
+        }
+
+        .book-card p {
+            color: var(--color-text-dark);
+            margin-bottom: 8px;
+            font-size: 1em;
+        }
+
+        .book-card .status {
+            font-weight: bold;
+            margin-top: 15px;
+            font-size: 0.95em;
+        }
+
+        .book-card .status.available {
+            color: #8bff8b; /* Bright green */
+        }
+
+        .book-card .status.borrowed {
+            color: var(--color-red);
+        }
+
+        .book-card .card-actions {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: flex-end; /* Align buttons to the right */
+        }
+
+        /* Leaderboard Specifics */
+        .leaderboard-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 20px 0;
+        }
+
+        .leaderboard-item {
+            background: linear-gradient(90deg, #2a0a6b, #1a063b);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .leaderboard-item .rank {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--color-red);
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .leaderboard-item .user-info {
+            flex-grow: 1;
+            margin-left: 15px;
+        }
+
+        .leaderboard-item .user-info span {
+            display: block;
+            color: var(--color-light-purple);
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+
+        .leaderboard-item .borrow-count {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #8bff8b;
+        }
+
+        /* Admin Controls */
+        .admin-controls {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 25px;
+            padding: 0 20px;
+        }
+
+        /* Modal Styling */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: linear-gradient(145deg, #2c075b, #1a063b);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            color: var(--color-text-light);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .modal-content p {
+            font-size: 1.2em;
+            margin: 0;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .book-form-modal {
+            max-width: 600px;
+            text-align: left;
+        }
+
+        .book-form-modal h3 {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--color-light-purple);
+            font-size: 2em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-container .button-group {
+            margin-top: 20px;
+            flex-direction: row;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .app-container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            .app-title {
+                font-size: 2em;
+                text-align: center;
+                width: 100%;
+            }
+
+            .app-header {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .tabs-nav {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .tab-button {
+                width: 100%;
+                padding: 10px 20px;
+            }
+
+            .section-title {
+                font-size: 1.8em;
+            }
+
+            .book-card h3 {
+                font-size: 1.5em;
+            }
+
+            .auth-card {
+                padding: 30px;
+            }
+
+            .modal-content {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .app-container {
+                padding: 15px;
+            }
+            .app-title {
+                font-size: 1.8em;
+            }
+            .leaderboard-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+                padding: 10px 15px;
+            }
+            .leaderboard-item .rank,
+            .leaderboard-item .borrow-count {
+                font-size: 1.2em;
+            }
+            .leaderboard-item .user-info {
+                margin-left: 0;
+            }
+        }
+    </style>
+    <!-- Supabase JS Client Library - Updated to explicitly load the UMD bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/index.min.js"></script>
 </head>
 <body>
     <div class="modal-overlay" id="modalOverlay">
@@ -30,9 +617,10 @@
         <nav class="tabs-nav" id="tabsNav">
             <button class="tab-button active" data-tab="books">Books</button>
             <button class="tab-button" data-tab="leaderboard">Leaderboard</button>
-            <button class="tab-button hidden" data-tab="admin" id="adminTab">Admin Panel</button>
+            <button class="tab-button hidden" data-tab="admin" id="adminTab"></button>
         </nav>
 
+        <!-- Login/Auth Section -->
         <section id="authSection" class="content-section auth-section active">
             <div class="auth-card">
                 <h2>Welcome to Your Library!</h2>
@@ -51,18 +639,23 @@
             </div>
         </section>
 
+        <!-- Books Section -->
         <section id="booksSection" class="content-section books-section hidden">
             <h2 class="section-title">Available Books</h2>
             <div id="booksGrid" class="items-grid">
-                </div>
+                <!-- Book cards will be injected here by JavaScript -->
+            </div>
         </section>
 
+        <!-- Leaderboard Section -->
         <section id="leaderboardSection" class="content-section leaderboard-section hidden">
             <h2 class="section-title">Borrowed Books Leaderboard</h2>
             <div id="leaderboardList" class="leaderboard-list">
-                </div>
+                <!-- Leaderboard entries will be injected here by JavaScript -->
+            </div>
         </section>
 
+        <!-- Admin Panel Section -->
         <section id="adminSection" class="content-section admin-section hidden">
             <h2 class="section-title">Admin Panel</h2>
 
@@ -72,9 +665,11 @@
 
             <h3 class="subsection-title">Manage Books</h3>
             <div id="adminBooksList" class="items-grid">
-                </div>
+                <!-- Books for admin management will be injected here -->
+            </div>
         </section>
 
+        <!-- Add/Edit Book Modal -->
         <div class="modal-overlay hidden" id="bookModalOverlay">
             <div class="modal-content book-form-modal">
                 <h3 id="bookModalTitle">Add New Book</h3>
