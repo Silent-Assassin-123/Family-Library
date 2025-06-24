@@ -199,13 +199,44 @@
         .text-sub-header-light { color: #6A1B9A; /* Medium purple */ }
         .text-sub-header-dark { color: #CE93D8; /* Medium-light purple */ }
 
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #6A1B9A; /* Purple */
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Style for the loading container */
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh; /* Ensure it takes full viewport height */
+            text-align: center;
+            color: #4A148C; /* Deep purple text */
+            background-image: linear-gradient(225deg, #e1bee7, #ce93d8, #e0b0e9, #f3e5f5); /* Light mode gradient */
+            background-size: 400% 400%;
+            animation: gradientBackground 15s ease infinite;
+        }
+        .dark-mode .loading-container {
+            color: #E1BEE7; /* Light purple text in dark mode */
+            background-image: linear-gradient(225deg, #1A1A1D, #212121, #2C2C30, #3E2723); /* Dark mode gradient */
+        }
     </style>
 </head>
 <body class="light-mode">
     <div id="app" class="min-h-screen p-4">
-        <!-- Content will be rendered here by JavaScript -->
-        <div class="min-h-screen flex items-center justify-center">
-            <p id="loading-message" class="text-xl text-indigo-700 animate-pulse">Loading library...</p>
+        <!-- Initial Loading State -->
+        <div id="initial-loading-screen" class="loading-container">
+            <div class="spinner mb-4"></div>
+            <p id="loading-message" class="text-xl animate-pulse">Loading library...</p>
         </div>
     </div>
 
@@ -237,11 +268,13 @@
         ];
 
         const appDiv = document.getElementById('app');
+        const initialLoadingScreen = document.getElementById('initial-loading-screen');
         const loadingMessage = document.getElementById('loading-message');
 
 
         // --- Supabase Initialization ---
         async function initializeSupabase() {
+            console.log("Initializing Supabase...");
             try {
                 if (!createClient) {
                     console.error("createClient is not available. Supabase SDK might not be loaded correctly.");
@@ -253,23 +286,24 @@
                 supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
                 window.supabaseClient = supabase; // Expose for console debugging
 
-                supabase.auth.onAuthStateChange(async (event, session) => { // Made async to await profile fetch
+                // Listen for auth state changes and render appropriate view
+                supabase.auth.onAuthStateChange(async (event, session) => {
+                    console.log("Auth state changed:", event, session ? session.user : 'No session');
                     if (session && session.user) {
                         userId = session.user.id;
                         userEmail = session.user.email;
                         isAdmin = adminUids.includes(userId);
                         await fetchUserProfiles(); // Fetch profiles whenever auth state changes
-                        console.log("Supabase Auth User:", userId, "Email:", userEmail, "Is Admin:", isAdmin, "Auth Event:", event);
                         renderView('main'); // Show main app if logged in
                     } else {
                         userId = null;
                         userEmail = null;
                         isAdmin = false;
                         userProfiles = {}; // Clear profiles on logout
-                        console.log("No Supabase user session. Auth Event:", event);
                         renderView('auth'); // Show login page if not logged in
                     }
-                    loadingMessage.style.display = 'none';
+                    // Hide loading screen after view is rendered
+                    initialLoadingScreen.style.display = 'none';
                     updateUserInfoDisplay(); // Update user info display immediately
                     setupRealtimeBooksListener(); // Re-setup listener on auth change
                 });
@@ -277,29 +311,33 @@
                 // Initial check for existing session
                 const { data: { user }, error: userError } = await supabase.auth.getUser();
                 if (user) {
+                    console.log("Existing user session found:", user.id);
                     userId = user.id;
                     userEmail = user.email;
                     isAdmin = adminUids.includes(userId);
                     await fetchUserProfiles(); // Fetch profiles on initial load if user exists
-                    loadingMessage.style.display = 'none';
                     renderView('main');
                 } else {
-                    loadingMessage.style.display = 'none';
+                    console.log("No existing user session. Showing auth view.");
                     renderView('auth');
                 }
+                // Hide loading screen after initial render path is chosen
+                initialLoadingScreen.style.display = 'none';
                 updateUserInfoDisplay();
                 setupRealtimeBooksListener();
 
             } catch (error) {
-                console.error("Error initializing Supabase:", error);
-                loadingMessage.textContent = "Failed to load library.";
+                console.error("Error during Supabase initialization:", error);
+                loadingMessage.textContent = "Failed to load library: " + error.message;
                 alert(`Failed to initialize the application: ${error.message}. Please check console.`);
+                initialLoadingScreen.style.display = 'flex'; // Keep loading screen visible with error
             }
         }
 
         // --- Fetch User Profiles ---
         async function fetchUserProfiles() {
             if (!supabase) return;
+            console.log("Fetching user profiles...");
             try {
                 const { data, error } = await supabase
                     .from('profiles')
@@ -322,55 +360,58 @@
         // --- Fetch Book Details from Supabase ---
         async function fetchAndRenderBooks() {
             if (!supabase) return;
+            console.log("Fetching and rendering books...");
+            try {
+                const { data, error } = await supabase
+                    .from('books')
+                    .select(`
+                        id,
+                        title,
+                        author,
+                        isbn,
+                        borrowed_by,
+                        last_modified,
+                        added_by
+                    `);
 
-            const { data, error } = await supabase
-                .from('books')
-                .select(`
-                    id,
-                    title,
-                    author,
-                    isbn,
-                    borrowed_by,
-                    last_modified,
-                    added_by
-                `);
+                if (error) throw error;
 
-            if (error) {
+                books = data.map(book => {
+                    // Use userProfiles map for display names
+                    let displayBorrowedBy = userProfiles[book.borrowed_by] || book.borrowed_by || 'N/A';
+                    let displayAddedBy = userProfiles[book.added_by] || book.added_by || 'Unknown';
+
+                    return {
+                        ...book,
+                        displayBorrowedBy: displayBorrowedBy,
+                        displayAddedBy: displayAddedBy
+                    };
+                }).sort((a, b) => a.title.localeCompare(b.title));
+
+                renderBookList();
+            } catch (error) {
                 console.error("Error fetching books from Supabase:", error);
                 alert("Error fetching books. Please check Supabase setup and RLS policies.");
-                return;
             }
-
-            books = data.map(book => {
-                // Use userProfiles map for display names
-                let displayBorrowedBy = userProfiles[book.borrowed_by] || book.borrowed_by || 'N/A';
-                let displayAddedBy = userProfiles[book.added_by] || book.added_by || 'Unknown';
-
-                return {
-                    ...book,
-                    displayBorrowedBy: displayBorrowedBy,
-                    displayAddedBy: displayAddedBy
-                };
-            }).sort((a, b) => a.title.localeCompare(b.title));
-
-            renderBookList();
         }
 
         // --- Real-time Books Listener ---
         function setupRealtimeBooksListener() {
             if (!supabase) return;
 
+            console.log("Setting up real-time books listener.");
+            // Remove all existing channels to prevent multiple listeners
             supabase.removeAllChannels();
 
             supabase
                 .channel('books_changes')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'books' }, payload => {
-                    console.log('Change received!', payload);
-                    fetchAndRenderBooks();
+                    console.log('Real-time change received!', payload);
+                    fetchAndRenderBooks(); // Re-fetch all books on any change
                 })
                 .subscribe();
 
-            fetchAndRenderBooks();
+            fetchAndRenderBooks(); // Initial fetch
         }
 
         // --- Fetch Book Details from Google Books API by ISBN ---
@@ -793,13 +834,13 @@
                     </div>
 
                     <!-- Search Bar -->
-                    <div class="max-w-xl mx-auto bg-white p-6 rounded-xl shadow-lg mb-8">
+                    <div class="max-w-xl mx-auto p-6 rounded-xl shadow-lg mb-8 bg-white">
                         <h2 class="text-2xl font-bold text-sub-header-light mb-4">Search Books</h2>
                         <input type="text" id="search-input" placeholder="Search by title, author, or ISBN..." class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm"/>
                     </div>
 
                     <!-- Book List -->
-                    <div class="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-lg">
+                    <div class="max-w-3xl mx-auto p-8 rounded-xl shadow-lg bg-white">
                         <h2 class="text-2xl font-bold text-sub-header-light mb-6">Your Books</h2>
                         <ul id="book-list" class="space-y-4">
                             <!-- Books will be rendered here -->
