@@ -54,94 +54,7 @@
             box-shadow: 0 0 0 1px #818cf8;
         }
 
-
-        /* Custom Modal Styling */
-        .modal {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 1000; /* Sit on top */
-            left: 0;
-            top: 0;
-            width: 100%; /* Full width */
-            height: 100%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
-            background-color: rgba(0,0,0,0.5); /* Black w/ opacity */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-content {
-            background-color: #fefefe;
-            padding: 24px;
-            border-radius: 0.75rem; /* rounded-lg */
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-xl */
-            max-width: 24rem; /* max-w-sm */
-            width: 100%;
-            margin: auto;
-            text-align: center;
-            position: relative; /* Needed for absolute positioning of close button */
-        }
-
-        .dark-mode .modal-content {
-            background-color: #2d3748; /* dark equivalent */
-            color: #e2e8f0;
-        }
-
-        .modal-message {
-            font-size: 1.125rem; /* text-lg */
-            font-weight: 600; /* font-semibold */
-            margin-bottom: 1rem; /* mb-4 */
-        }
-        .modal-buttons button {
-            padding: 0.5rem 1.5rem; /* px-6 py-2 */
-            border-radius: 0.5rem; /* rounded-lg */
-            font-weight: 500; /* font-medium */
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow */
-            transition: all 0.15s ease-in-out;
-        }
-        .modal-buttons button.primary {
-            background-color: #4f46e5; /* bg-indigo-600 */
-            color: white;
-        }
-        .modal-buttons button.primary:hover {
-            background-color: #4338ca; /* hover:bg-indigo-700 */
-        }
-        .modal-buttons button.secondary {
-            border: 1px solid #d1d5db; /* border border-gray-300 */
-            color: #374151; /* text-gray-700 */
-            background-color: #ffffff;
-        }
-        .dark-mode .modal-buttons button.secondary {
-             border-color: #4a5568;
-             color: #cbd5e0;
-             background-color: #2d3748;
-        }
-        .modal-buttons button.secondary:hover {
-            background-color: #f9fafb; /* hover:bg-gray-50 */
-        }
-        .dark-mode .modal-buttons button.secondary:hover {
-             background-color: #4a5568;
-        }
-        .modal-buttons button.delete-btn {
-            background-color: #ef4444; /* bg-red-500 */
-            color: white;
-        }
-        .modal-buttons button.delete-btn:hover {
-            background-color: #dc2626; /* hover:bg-red-600 */
-        }
-        .modal-buttons input {
-            width: 100%;
-            padding: 0.5rem 1rem;
-            border-radius: 0.375rem;
-            border: 1px solid #d1d5db;
-            margin-bottom: 1rem;
-        }
-        .dark-mode .modal-buttons input {
-            border-color: #4a5568;
-            background-color: #4a5568;
-            color: #e2e8f0;
-        }
+        /* Removed modal specific CSS for .modal, .modal-content, .modal-message, .modal-buttons, etc. */
 
         /* Loading Spinner */
         .spinner {
@@ -194,73 +107,12 @@
 
         const appDiv = document.getElementById('app');
         const loadingMessage = document.getElementById('loading-message');
-        const modal = document.createElement('div');
-        modal.className = 'modal';
-        document.body.appendChild(modal);
+        // Removed modal element creation: const modal = document.createElement('div');
 
-        // --- Custom Modal Logic ---
-        function showCustomModal(message, type = 'alert', onConfirm = null, onCancel = null) {
-            modal.innerHTML = `
-                <div class="modal-content ${document.body.classList.contains('dark-mode') ? 'dark-mode' : ''}">
-                    <button class="modal-close-button absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-2xl font-bold">&times;</button>
-                    <div class="modal-message">${message}</div>
-                    <div class="modal-buttons flex justify-center space-x-3 mt-4">
-                        ${type === 'alert' ?
-                            `<button class="primary" id="modal-ok-btn">OK</button>` : ''}
-                        ${type === 'confirm' ? `
-                            <button class="delete-btn" id="modal-confirm-btn">Confirm</button>
-                            <button class="secondary" id="modal-cancel-btn">Cancel</button>
-                        ` : ''}
-                        ${type === 'prompt' ? `
-                            <input type="text" id="modal-prompt-input" placeholder="Enter your name" class="${document.body.classList.contains('dark-mode') ? 'dark-mode' : ''}"/>
-                            <button class="primary" id="modal-prompt-ok-btn">OK</button>
-                            <button class="secondary" id="modal-prompt-cancel-btn">Cancel</button>
-                        ` : ''}
-                    </div>
-                </div>
-            `;
-            modal.style.display = 'flex';
-            modal.onclick = (e) => { // Close modal if clicking outside content
-                if (e.target === modal) {
-                    modal.style.display = 'none';
-                    if (onCancel) onCancel(); // Call cancel if background is clicked
-                }
-            };
 
-            // Add event listener for the new close button
-            document.querySelector('.modal-close-button').onclick = () => {
-                modal.style.display = 'none';
-                if (onCancel) onCancel(); // Treat close button as a cancel action
-            };
+        // --- Custom Modal Logic (Removed - now using console.log for messages) ---
+        // showCustomModal function has been removed. Replace calls with console.log or alert.
 
-            if (type === 'alert') {
-                document.getElementById('modal-ok-btn').onclick = () => {
-                    modal.style.display = 'none';
-                    if (onConfirm) onConfirm();
-                };
-            } else if (type === 'confirm') {
-                document.getElementById('modal-confirm-btn').onclick = () => {
-                    modal.style.display = 'none';
-                    if (onConfirm) onConfirm();
-                };
-                document.getElementById('modal-cancel-btn').onclick = () => {
-                    modal.style.display = 'none';
-                    if (onCancel) onCancel();
-                };
-            } else if (type === 'prompt') {
-                const promptInput = document.getElementById('modal-prompt-input');
-                promptInput.focus();
-
-                document.getElementById('modal-prompt-ok-btn').onclick = () => {
-                    modal.style.display = 'none';
-                    if (onConfirm) onConfirm(promptInput.value.trim());
-                };
-                document.getElementById('modal-prompt-cancel-btn').onclick = () => {
-                    modal.style.display = 'none';
-                    if (onCancel) onCancel();
-                };
-            }
-        }
 
         // --- Supabase Initialization ---
         async function initializeSupabase() {
@@ -268,7 +120,7 @@
                 if (!createClient) {
                     console.error("createClient is not available. Supabase SDK might not be loaded correctly.");
                     loadingMessage.textContent = "Error: Supabase SDK failed to load.";
-                    showCustomModal("Error initializing Supabase. Check console for details.");
+                    console.log("Error initializing Supabase. Check console for details."); // Replaced showCustomModal
                     return;
                 }
 
@@ -312,7 +164,7 @@
             } catch (error) {
                 console.error("Error initializing Supabase:", error);
                 loadingMessage.textContent = "Failed to load library.";
-                showCustomModal(`Failed to initialize the application: ${error.message}. Please check console.`);
+                console.log(`Failed to initialize the application: ${error.message}. Please check console.`); // Replaced showCustomModal
             }
         }
 
@@ -334,7 +186,7 @@
 
             if (error) {
                 console.error("Error fetching books from Supabase:", error);
-                showCustomModal("Error fetching books. Please check Supabase setup and RLS policies.");
+                console.log("Error fetching books. Please check Supabase setup and RLS policies."); // Replaced showCustomModal
                 return;
             }
 
@@ -384,7 +236,7 @@
         async function fetchBookDetailsByIsbn() {
             const isbnSearchInput = document.getElementById('isbn-search-input').value.trim();
             if (!isbnSearchInput) {
-                showCustomModal("Please enter an ISBN.");
+                console.log("Please enter an ISBN."); // Replaced showCustomModal
                 return;
             }
 
@@ -399,16 +251,16 @@
                     document.getElementById('book-title').value = volumeInfo.title || '';
                     document.getElementById('book-author').value = volumeInfo.authors ? volumeInfo.authors.join(', ') : '';
                     document.getElementById('book-isbn').value = isbnSearchInput;
-                    showCustomModal("Book details fetched successfully!");
+                    console.log("Book details fetched successfully!"); // Replaced showCustomModal
                 } else {
-                    showCustomModal("No book found for this ISBN. Please enter details manually.");
+                    console.log("No book found for this ISBN. Please enter details manually."); // Replaced showCustomModal
                     document.getElementById('book-title').value = '';
                     document.getElementById('book-author').value = '';
                     document.getElementById('book-isbn').value = isbnSearchInput;
                 }
             } catch (error) {
                 console.error("Error fetching book details:", error);
-                showCustomModal("Error fetching book details. Please check the ISBN or your internet connection.");
+                console.log("Error fetching book details. Please check the ISBN or your internet connection."); // Replaced showCustomModal
                 document.getElementById('book-title').value = '';
                 document.getElementById('book-author').value = '';
                 document.getElementById('book-isbn').value = isbnSearchInput;
@@ -424,12 +276,12 @@
             const isbn = document.getElementById('book-isbn').value.trim();
 
             if (!title || !author) {
-                showCustomModal("Book title and author cannot be empty.");
+                console.log("Book title and author cannot be empty."); // Replaced showCustomModal
                 return;
             }
 
             if (!supabase) {
-                showCustomModal("Supabase client not initialized. Please try again.");
+                console.log("Supabase client not initialized. Please try again."); // Replaced showCustomModal
                 return;
             }
 
@@ -447,7 +299,7 @@
 
                     if (error) throw error;
 
-                    showCustomModal("Book updated successfully!");
+                    console.log("Book updated successfully!"); // Replaced showCustomModal
                     editingBook = null;
                     document.getElementById('add-edit-book-form').reset();
                     document.getElementById('add-edit-form-title').textContent = 'Add New Book';
@@ -469,13 +321,13 @@
 
                     if (error) throw error;
 
-                    showCustomModal("Book added successfully!");
+                    console.log("Book added successfully!"); // Replaced showCustomModal
                     document.getElementById('add-edit-book-form').reset();
                     document.getElementById('isbn-search-input').value = '';
                 }
             } catch (e) {
                 console.error("Error saving book: ", e);
-                showCustomModal(`Error saving book: ${e.message}. Please check RLS policies and admin permissions.`);
+                console.log(`Error saving book: ${e.message}. Please check RLS policies and admin permissions.`); // Replaced showCustomModal
             }
         }
 
@@ -507,7 +359,7 @@
         // --- Handle Borrow/Return ---
         async function handleBorrowReturn(bookId, currentBorrowedByUid) {
             if (!supabase || !userId) {
-                showCustomModal("You must be logged in to borrow or return books.");
+                console.log("You must be logged in to borrow or return books."); // Replaced showCustomModal
                 return;
             }
 
@@ -519,7 +371,7 @@
                     newBorrowedByValue = null;
                     message = "Book returned successfully!";
                 } else {
-                    showCustomModal("This book is borrowed by another user. Only the borrower can return it.");
+                    console.log("This book is borrowed by another user. Only the borrower can return it."); // Replaced showCustomModal
                     return;
                 }
             } else {
@@ -537,46 +389,43 @@
                     .eq('id', bookId);
 
                 if (error) throw error;
-                showCustomModal(message);
+                console.log(message); // Replaced showCustomModal
             } catch (e) {
                 console.error("Error updating borrow status: ", e);
-                showCustomModal(`Error updating borrow status: ${e.message}. Please check RLS policies.`);
+                console.log(`Error updating borrow status: ${e.message}. Please check RLS policies.`); // Replaced showCustomModal
             }
         }
 
         // --- Handle Delete Book ---
         async function handleDeleteBook(bookId) {
             if (!supabase) {
-                showCustomModal("Supabase client not initialized. Please try again.");
+                console.log("Supabase client not initialized. Please try again."); // Replaced showCustomModal
                 return;
             }
 
             if (!isAdmin) {
-                showCustomModal("Only administrators can delete books.");
+                console.log("Only administrators can delete books."); // Replaced showCustomModal
                 return;
             }
 
-            showCustomModal(
-                "Are you sure you want to delete this book?",
-                'confirm',
-                async () => {
-                    try {
-                        const { error } = await supabase
-                            .from('books')
-                            .delete()
-                            .eq('id', bookId);
+            // Simplified confirmation, user would need to confirm via browser's built-in dialog or proceed without confirmation
+            const confirmDelete = confirm("Are you sure you want to delete this book?"); // Using confirm for immediate user interaction outside modal
+            if (confirmDelete) {
+                try {
+                    const { error } = await supabase
+                        .from('books')
+                        .delete()
+                        .eq('id', bookId);
 
-                        if (error) throw error;
-                        showCustomModal("Book deleted successfully!");
-                    } catch (e) {
-                        console.error("Error deleting document: ", e);
-                        showCustomModal(`Error deleting book: ${e.message}. Please check RLS policies.`);
-                    }
-                },
-                () => {
-                    showCustomModal("Delete action cancelled.");
+                    if (error) throw error;
+                    console.log("Book deleted successfully!"); // Replaced showCustomModal
+                } catch (e) {
+                    console.error("Error deleting document: ", e);
+                    console.log(`Error deleting book: ${e.message}. Please check RLS policies.`); // Replaced showCustomModal
                 }
-            );
+            } else {
+                console.log("Delete action cancelled."); // Replaced showCustomModal
+            }
         }
 
         // --- Authentication Functions ---
@@ -586,12 +435,12 @@
             const password = document.getElementById('auth-password').value.trim();
 
             if (!email || !password) {
-                showCustomModal("Email and password cannot be empty.");
+                console.log("Email and password cannot be empty."); // Replaced showCustomModal
                 return;
             }
 
             if (!supabase) {
-                showCustomModal("Supabase client not initialized. Please try again.");
+                console.log("Supabase client not initialized. Please try again."); // Replaced showCustomModal
                 return;
             }
 
@@ -600,7 +449,7 @@
                 if (isSignUp) {
                     response = await supabase.auth.signUp({ email, password });
                     if (response.data.user) {
-                        showCustomModal("Sign up successful! Please check your email to confirm your account.");
+                        console.log("Sign up successful! Please check your email to confirm your account."); // Replaced showCustomModal
                     } else if (response.error) {
                         throw response.error;
                     }
@@ -613,7 +462,7 @@
                 // Auth state change listener will handle view rendering
             } catch (error) {
                 console.error("Auth error:", error);
-                showCustomModal(`Authentication failed: ${error.message}`);
+                console.log(`Authentication failed: ${error.message}`); // Replaced showCustomModal
             }
         }
 
@@ -622,11 +471,11 @@
             try {
                 const { error } = await supabase.auth.signOut();
                 if (error) throw error;
-                showCustomModal("You have been logged out.");
+                console.log("You have been logged out."); // Replaced showCustomModal
                 // Auth state change listener will handle view rendering
             } catch (error) {
                 console.error("Logout error:", error);
-                showCustomModal(`Logout failed: ${error.message}`);
+                console.log(`Logout failed: ${error.message}`); // Replaced showCustomModal
             }
         }
 
@@ -876,7 +725,8 @@
 
         function applyTheme(theme) {
             const body = document.body;
-            const modalContent = modal.querySelector('.modal-content');
+            // Removed modalContent from theme application
+
             const authFormElements = document.querySelectorAll('#auth-form input, #auth-form label, #auth-form button.secondary');
             const mainContentElements = document.querySelectorAll('#app input, #app label, #app button.secondary, #app h2, #app h3, #app p.text-gray-700, #app p.text-gray-600, #app li.bg-gray-50, #app li.border-gray-200');
 
@@ -887,8 +737,8 @@
                 const themeToggleButton = document.getElementById('theme-toggle');
                 if(themeToggleButton) themeToggleButton.textContent = 'Switch to Light Mode';
 
-                if (modalContent) modalContent.classList.add('dark-mode');
-                document.querySelectorAll('.modal-buttons input').forEach(el => el.classList.add('dark-mode'));
+                // Removed modalContent.classList.add('dark-mode');
+                // Removed document.querySelectorAll('.modal-buttons input').forEach(el => el.classList.add('dark-mode'));
 
                 authFormElements.forEach(el => el.classList.add('dark-mode'));
                 mainContentElements.forEach(el => el.classList.add('dark-mode'));
@@ -900,8 +750,8 @@
                 const themeToggleButton = document.getElementById('theme-toggle');
                 if(themeToggleButton) themeToggleButton.textContent = 'Switch to Dark Mode';
 
-                if (modalContent) modalContent.classList.remove('dark-mode');
-                document.querySelectorAll('.modal-buttons input').forEach(el => el.classList.remove('dark-mode'));
+                // Removed modalContent.classList.remove('dark-mode');
+                // Removed document.querySelectorAll('.modal-buttons input').forEach(el => el.classList.remove('dark-mode'));
 
                 authFormElements.forEach(el => el.classList.remove('dark-mode'));
                 mainContentElements.forEach(el => el.classList.remove('dark-mode'));
@@ -915,7 +765,7 @@
         window.handleDeleteBook = handleDeleteBook;
         window.toggleTheme = toggleTheme;
         window.applyTheme = applyTheme;
-        window.showCustomModal = showCustomModal;
+        // Removed showCustomModal from window exposure
         window.handleAuth = handleAuth;
         window.handleLogout = handleLogout;
 
