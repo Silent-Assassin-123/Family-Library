@@ -11,13 +11,27 @@
         body {
             font-family: 'Inter', sans-serif;
             transition: background-color 0.3s ease, color 0.3s ease;
+            background-size: 400% 400%; /* For animated gradient */
+            animation: gradientBackground 15s ease infinite;
         }
-        /* Light mode defaults (already set by Tailwind in HTML) */
+
+        /* Animated Gradient Background */
+        @keyframes gradientBackground {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Light mode defaults */
         .light-mode {
-            background: linear-gradient(to bottom right, #e0e7ff, #ede9fe); /* from-indigo-100 to-purple-100 */
+            background-image: linear-gradient(225deg, #e0e7ff, #ede9fe, #dbeafe, #eef2ff); /* More complex gradient */
             color: #1a202c; /* text-gray-900 */
         }
-        .light-mode .bg-white { background-color: #ffffff; }
+        .light-mode .bg-white {
+            background-color: #ffffff;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 5px 15px -5px rgba(0, 0, 0, 0.04); /* Deeper shadow */
+            border: 1px solid rgba(229, 231, 235, 0.7); /* Lighter border */
+        }
         .light-mode .text-indigo-800 { color: #312e81; }
         .light-mode .text-indigo-700 { color: #4338ca; }
         .light-mode .text-gray-600 { color: #4b5563; }
@@ -25,18 +39,25 @@
         .light-mode .text-gray-900 { color: #1a202c; }
         .light-mode .text-gray-700 { color: #374151; }
         .light-mode .border-gray-200 { border-color: #e5e7eb; }
-        .light-mode .bg-gray-50 { background-color: #f9fafb; }
+        .light-mode .bg-gray-50 {
+            background-color: #f9fafb;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); /* Subtle shadow for list items */
+        }
         .light-mode .hover\:bg-gray-100:hover { background-color: #f3f4f6; }
         .light-mode .border-gray-300 { border-color: #d1d5db; }
-        .light-mode input, .light-mode select { background-color: #ffffff; color: #1a202c; }
+        .light-mode input, .light-mode select { background-color: #ffffff; color: #1a202c; border-color: #d1d5db; }
 
 
         /* Dark mode styles */
         .dark-mode {
-            background-color: #1a202c; /* bg-gray-900 */
+            background-image: linear-gradient(225deg, #2d3748, #1a202c, #2c313a, #1f2733); /* Darker gradient */
             color: #e2e8f0; /* text-gray-100 */
         }
-        .dark-mode .bg-white { background-color: #2d3748; /* dark equivalent */ }
+        .dark-mode .bg-white {
+            background-color: #2d3748; /* dark equivalent */
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 5px 15px -5px rgba(0, 0, 0, 0.1); /* Deeper shadow for dark mode */
+            border: 1px solid rgba(74, 85, 104, 0.7); /* Darker border */
+        }
         .dark-mode .text-indigo-800 { color: #a5b4fc; /* text-indigo-300 */ }
         .dark-mode .text-indigo-700 { color: #818cf8; /* text-indigo-300 */ }
         .dark-mode .text-gray-600 { color: #a0aec0; /* text-gray-300 */ }
@@ -44,31 +65,141 @@
         .dark-mode .text-gray-900 { color: #e2e8f0; /* text-gray-100 */ }
         .dark-mode .text-gray-700 { color: #cbd5e0; /* text-gray-300 */ }
         .dark-mode .border-gray-200 { border-color: #4a5568; /* dark equivalent */ }
-        .dark-mode .bg-gray-50 { background-color: #2d3748; /* dark equivalent */ }
+        .dark-mode .bg-gray-50 {
+            background-color: #2d3748; /* dark equivalent */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.08);
+        }
         .dark-mode .hover\:bg-gray-100:hover { background-color: #4a5568; /* dark equivalent */ }
         .dark-mode .border-gray-300 { border-color: #4a5568; /* dark equivalent */ }
-        .dark-mode input, .dark-mode select { background-color: #4a5568; color: #e2e8f0; }
+        .dark-mode input, .dark-mode select { background-color: #4a5568; color: #e2e8f0; border-color: #4a5568; }
         .dark-mode input.focus\:border-indigo-500:focus,
         .dark-mode input.focus\:ring-indigo-500:focus {
             border-color: #818cf8;
             box-shadow: 0 0 0 1px #818cf8;
         }
 
-        /* Removed modal specific CSS for .modal, .modal-content, .modal-message, .modal-buttons, etc. */
+        /* Enhanced Button Styling */
+        .btn-primary {
+            background: linear-gradient(to right, #6366f1, #818cf8); /* Indigo to light indigo */
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+        }
+        .btn-primary:hover {
+            background: linear-gradient(to right, #4f46e5, #6366f1);
+            box-shadow: 0 6px 15px rgba(99, 102, 241, 0.4);
+            transform: translateY(-1px);
+        }
 
-        /* Loading Spinner */
-        .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-left-color: #4f46e5; /* Indigo-600 */
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
+        .btn-secondary {
+            background-color: #ffffff;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .btn-secondary:hover {
+            background-color: #f3f4f6;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+        .dark-mode .btn-secondary {
+            background-color: #2d3748;
+            color: #cbd5e0;
+            border-color: #4a5568;
+        }
+        .dark-mode .btn-secondary:hover {
+            background-color: #4a5568;
+        }
+
+
+        .btn-green {
+            background: linear-gradient(to right, #34d399, #10b981); /* Emerald green */
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(52, 211, 153, 0.3);
+        }
+        .btn-green:hover {
+            background: linear-gradient(to right, #10b981, #059669);
+            box-shadow: 0 6px 15px rgba(52, 211, 153, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .btn-yellow {
+            background: linear-gradient(to right, #fbbf24, #f59e0b); /* Amber yellow */
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(251, 191, 36, 0.3);
+        }
+        .btn-yellow:hover {
+            background: linear-gradient(to right, #f59e0b, #d97706);
+            box-shadow: 0 6px 15px rgba(251, 191, 36, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .btn-red {
+            background: linear-gradient(to right, #ef4444, #dc2626); /* Red */
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
+        }
+        .btn-red:hover {
+            background: linear-gradient(to right, #dc2626, #b91c1c);
+            box-shadow: 0 6px 15px rgba(239, 68, 68, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .btn-blue {
+            background: linear-gradient(to right, #3b82f6, #2563eb); /* Blue */
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+        }
+        .btn-blue:hover {
+            background: linear-gradient(to right, #2563eb, #1d4ed8);
+            box-shadow: 0 6px 15px rgba(59, 130, 246, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .btn-purple {
+            background: linear-gradient(to right, #a855f7, #9333ea); /* Purple */
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(168, 85, 247, 0.3);
+        }
+        .btn-purple:hover {
+            background: linear-gradient(to right, #9333ea, #7e22ce);
+            box-shadow: 0 6px 15px rgba(168, 85, 247, 0.4);
+            transform: translateY(-1px);
+        }
+
+        /* Enhanced list item hover effect */
+        .book-list-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px -5px rgba(0, 0, 0, 0.15), 0 4px 10px -5px rgba(0, 0, 0, 0.08);
+        }
+        .dark-mode .book-list-item:hover {
+            box-shadow: 0 8px 20px -5px rgba(0, 0, 0, 0.3), 0 4px 10px -5px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Adjust input focus styles for better contrast */
+        input:focus {
+            outline: none;
+            border-color: #6366f1 !important; /* Tailwind's indigo-500 */
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3) !important; /* Tailwind's indigo-500 with opacity */
+        }
+        .dark-mode input:focus {
+            border-color: #818cf8 !important;
+            box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.3) !important;
+        }
+
+        /* Ensure heading colors are affected by theme */
+        .text-header-light { color: #312e81; /* indigo-800 */ }
+        .text-header-dark { color: #a5b4fc; /* indigo-300 */ }
+
+        .text-sub-header-light { color: #4338ca; /* indigo-700 */ }
+        .text-sub-header-dark { color: #818cf8; /* indigo-300 */ }
+
     </style>
 </head>
 <body class="light-mode">
@@ -107,11 +238,6 @@
 
         const appDiv = document.getElementById('app');
         const loadingMessage = document.getElementById('loading-message');
-        // Removed modal element creation: const modal = document.createElement('div');
-
-
-        // --- Custom Modal Logic (Removed - now using console.log for messages) ---
-        // showCustomModal function has been removed. Replace calls with console.log or alert.
 
 
         // --- Supabase Initialization ---
@@ -120,7 +246,7 @@
                 if (!createClient) {
                     console.error("createClient is not available. Supabase SDK might not be loaded correctly.");
                     loadingMessage.textContent = "Error: Supabase SDK failed to load.";
-                    console.log("Error initializing Supabase. Check console for details."); // Replaced showCustomModal
+                    alert("Error initializing Supabase. Check console for details.");
                     return;
                 }
 
@@ -164,7 +290,7 @@
             } catch (error) {
                 console.error("Error initializing Supabase:", error);
                 loadingMessage.textContent = "Failed to load library.";
-                console.log(`Failed to initialize the application: ${error.message}. Please check console.`); // Replaced showCustomModal
+                alert(`Failed to initialize the application: ${error.message}. Please check console.`);
             }
         }
 
@@ -186,7 +312,7 @@
 
             if (error) {
                 console.error("Error fetching books from Supabase:", error);
-                console.log("Error fetching books. Please check Supabase setup and RLS policies."); // Replaced showCustomModal
+                alert("Error fetching books. Please check Supabase setup and RLS policies.");
                 return;
             }
 
@@ -236,7 +362,7 @@
         async function fetchBookDetailsByIsbn() {
             const isbnSearchInput = document.getElementById('isbn-search-input').value.trim();
             if (!isbnSearchInput) {
-                console.log("Please enter an ISBN."); // Replaced showCustomModal
+                alert("Please enter an ISBN.");
                 return;
             }
 
@@ -251,16 +377,16 @@
                     document.getElementById('book-title').value = volumeInfo.title || '';
                     document.getElementById('book-author').value = volumeInfo.authors ? volumeInfo.authors.join(', ') : '';
                     document.getElementById('book-isbn').value = isbnSearchInput;
-                    console.log("Book details fetched successfully!"); // Replaced showCustomModal
+                    alert("Book details fetched successfully!");
                 } else {
-                    console.log("No book found for this ISBN. Please enter details manually."); // Replaced showCustomModal
+                    alert("No book found for this ISBN. Please enter details manually.");
                     document.getElementById('book-title').value = '';
                     document.getElementById('book-author').value = '';
                     document.getElementById('book-isbn').value = isbnSearchInput;
                 }
             } catch (error) {
                 console.error("Error fetching book details:", error);
-                console.log("Error fetching book details. Please check the ISBN or your internet connection."); // Replaced showCustomModal
+                alert("Error fetching book details. Please check the ISBN or your internet connection.");
                 document.getElementById('book-title').value = '';
                 document.getElementById('book-author').value = '';
                 document.getElementById('book-isbn').value = isbnSearchInput;
@@ -276,12 +402,12 @@
             const isbn = document.getElementById('book-isbn').value.trim();
 
             if (!title || !author) {
-                console.log("Book title and author cannot be empty."); // Replaced showCustomModal
+                alert("Book title and author cannot be empty.");
                 return;
             }
 
             if (!supabase) {
-                console.log("Supabase client not initialized. Please try again."); // Replaced showCustomModal
+                alert("Supabase client not initialized. Please try again.");
                 return;
             }
 
@@ -299,7 +425,7 @@
 
                     if (error) throw error;
 
-                    console.log("Book updated successfully!"); // Replaced showCustomModal
+                    alert("Book updated successfully!");
                     editingBook = null;
                     document.getElementById('add-edit-book-form').reset();
                     document.getElementById('add-edit-form-title').textContent = 'Add New Book';
@@ -321,13 +447,13 @@
 
                     if (error) throw error;
 
-                    console.log("Book added successfully!"); // Replaced showCustomModal
+                    alert("Book added successfully!");
                     document.getElementById('add-edit-book-form').reset();
                     document.getElementById('isbn-search-input').value = '';
                 }
             } catch (e) {
                 console.error("Error saving book: ", e);
-                console.log(`Error saving book: ${e.message}. Please check RLS policies and admin permissions.`); // Replaced showCustomModal
+                alert(`Error saving book: ${e.message}. Please check RLS policies and admin permissions.`);
             }
         }
 
@@ -359,7 +485,7 @@
         // --- Handle Borrow/Return ---
         async function handleBorrowReturn(bookId, currentBorrowedByUid) {
             if (!supabase || !userId) {
-                console.log("You must be logged in to borrow or return books."); // Replaced showCustomModal
+                alert("You must be logged in to borrow or return books.");
                 return;
             }
 
@@ -371,7 +497,7 @@
                     newBorrowedByValue = null;
                     message = "Book returned successfully!";
                 } else {
-                    console.log("This book is borrowed by another user. Only the borrower can return it."); // Replaced showCustomModal
+                    alert("This book is borrowed by another user. Only the borrower can return it.");
                     return;
                 }
             } else {
@@ -389,27 +515,26 @@
                     .eq('id', bookId);
 
                 if (error) throw error;
-                console.log(message); // Replaced showCustomModal
+                alert(message);
             } catch (e) {
                 console.error("Error updating borrow status: ", e);
-                console.log(`Error updating borrow status: ${e.message}. Please check RLS policies.`); // Replaced showCustomModal
+                alert(`Error updating borrow status: ${e.message}. Please check RLS policies.`);
             }
         }
 
         // --- Handle Delete Book ---
         async function handleDeleteBook(bookId) {
             if (!supabase) {
-                console.log("Supabase client not initialized. Please try again."); // Replaced showCustomModal
+                alert("Supabase client not initialized. Please try again.");
                 return;
             }
 
             if (!isAdmin) {
-                console.log("Only administrators can delete books."); // Replaced showCustomModal
+                alert("Only administrators can delete books.");
                 return;
             }
 
-            // Simplified confirmation, user would need to confirm via browser's built-in dialog or proceed without confirmation
-            const confirmDelete = confirm("Are you sure you want to delete this book?"); // Using confirm for immediate user interaction outside modal
+            const confirmDelete = confirm("Are you sure you want to delete this book?");
             if (confirmDelete) {
                 try {
                     const { error } = await supabase
@@ -418,13 +543,13 @@
                         .eq('id', bookId);
 
                     if (error) throw error;
-                    console.log("Book deleted successfully!"); // Replaced showCustomModal
+                    alert("Book deleted successfully!");
                 } catch (e) {
                     console.error("Error deleting document: ", e);
-                    console.log(`Error deleting book: ${e.message}. Please check RLS policies.`); // Replaced showCustomModal
+                    alert(`Error deleting book: ${e.message}. Please check RLS policies.`);
                 }
             } else {
-                console.log("Delete action cancelled."); // Replaced showCustomModal
+                alert("Delete action cancelled.");
             }
         }
 
@@ -435,12 +560,12 @@
             const password = document.getElementById('auth-password').value.trim();
 
             if (!email || !password) {
-                console.log("Email and password cannot be empty."); // Replaced showCustomModal
+                alert("Email and password cannot be empty.");
                 return;
             }
 
             if (!supabase) {
-                console.log("Supabase client not initialized. Please try again."); // Replaced showCustomModal
+                alert("Supabase client not initialized. Please try again.");
                 return;
             }
 
@@ -448,21 +573,26 @@
                 let response;
                 if (isSignUp) {
                     response = await supabase.auth.signUp({ email, password });
-                    if (response.data.user) {
-                        console.log("Sign up successful! Please check your email to confirm your account."); // Replaced showCustomModal
-                    } else if (response.error) {
+                    if (response.error) {
                         throw response.error;
                     }
-                } else {
+                    if (response.data.user) {
+                        alert("Sign up successful and logged in!");
+                    } else {
+                        // This case is for when email confirmation is required but no auto-login happens
+                        alert("Sign up successful! Please check your email to confirm your account.");
+                    }
+                } else { // is login
                     response = await supabase.auth.signInWithPassword({ email, password });
                     if (response.error) {
                         throw response.error;
                     }
+                    alert("Login successful!");
                 }
-                // Auth state change listener will handle view rendering
+                // onAuthStateChange listener will now handle renderView('main') on success
             } catch (error) {
                 console.error("Auth error:", error);
-                console.log(`Authentication failed: ${error.message}`); // Replaced showCustomModal
+                alert(`Authentication failed: ${error.message}`);
             }
         }
 
@@ -471,11 +601,11 @@
             try {
                 const { error } = await supabase.auth.signOut();
                 if (error) throw error;
-                console.log("You have been logged out."); // Replaced showCustomModal
+                alert("You have been logged out.");
                 // Auth state change listener will handle view rendering
             } catch (error) {
                 console.error("Logout error:", error);
-                console.log(`Logout failed: ${error.message}`); // Replaced showCustomModal
+                alert(`Logout failed: ${error.message}`);
             }
         }
 
@@ -488,28 +618,28 @@
             if (viewName === 'auth') {
                 htmlContent = `
                     <div class="flex items-center justify-center min-h-screen">
-                        <div class="max-w-md w-full bg-white p-8 rounded-xl shadow-lg ${isDarkMode ? 'dark-mode' : ''}">
-                            <h2 class="text-3xl font-bold text-center text-indigo-700 mb-6 ${isDarkMode ? 'dark-mode' : ''}">
+                        <div class="max-w-md w-full bg-white p-8 rounded-xl shadow-lg">
+                            <h2 class="text-3xl font-bold text-center text-sub-header-light mb-6">
                                 Welcome to Family Library
                             </h2>
                             <form id="auth-form" class="space-y-4">
                                 <div>
-                                    <label for="auth-email" class="block text-sm font-medium text-gray-700 mb-1 ${isDarkMode ? 'dark-mode' : ''}">
+                                    <label for="auth-email" class="block text-sm font-medium text-gray-700 mb-1">
                                         Email
                                     </label>
-                                    <input type="email" id="auth-email" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${isDarkMode ? 'dark-mode' : ''}" placeholder="your.email@example.com" required/>
+                                    <input type="email" id="auth-email" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm" placeholder="your.email@example.com" required/>
                                 </div>
                                 <div>
-                                    <label for="auth-password" class="block text-sm font-medium text-gray-700 mb-1 ${isDarkMode ? 'dark-mode' : ''}">
+                                    <label for="auth-password" class="block text-sm font-medium text-gray-700 mb-1">
                                         Password
                                     </label>
-                                    <input type="password" id="auth-password" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${isDarkMode ? 'dark-mode' : ''}" placeholder="••••••••" required/>
+                                    <input type="password" id="auth-password" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm" placeholder="••••••••" required/>
                                 </div>
                                 <div class="flex flex-col space-y-3">
-                                    <button type="submit" id="login-button" class="px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out w-full">
+                                    <button type="submit" id="login-button" class="px-6 py-3 rounded-lg font-medium shadow w-full btn-primary">
                                         Login
                                     </button>
-                                    <button type="button" id="signup-button" class="px-6 py-3 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 w-full ${isDarkMode ? 'dark-mode' : ''}">
+                                    <button type="button" id="signup-button" class="px-6 py-3 rounded-md shadow-sm text-sm font-medium w-full btn-secondary">
                                         Sign Up
                                     </button>
                                 </div>
@@ -528,7 +658,7 @@
             } else if (viewName === 'main') {
                 htmlContent = `
                     <header class="text-center mb-8">
-                        <h1 class="text-4xl font-extrabold mb-2 text-indigo-800">
+                        <h1 class="text-4xl font-extrabold mb-2 text-header-light">
                             Family Library
                         </h1>
                         <p class="text-lg text-gray-600">
@@ -537,7 +667,7 @@
                         <p class="text-sm mt-2 text-gray-500" id="user-info">
                             Logged in as: <span class="font-semibold">${userEmail || userId || 'Anonymous'}</span>
                             ${isAdmin ? `<span class="ml-2 px-2 py-1 bg-yellow-400 text-yellow-900 rounded-full text-xs font-bold">ADMIN</span>` : ''}
-                            <button id="logout-button" class="ml-4 px-3 py-1 bg-red-500 text-white text-xs rounded-lg shadow hover:bg-red-600 transition duration-150 ease-in-out">
+                            <button id="logout-button" class="ml-4 px-3 py-1 rounded-lg shadow text-xs btn-red">
                                 Logout
                             </button>
                         </p>
@@ -548,15 +678,15 @@
 
                     <!-- Add/Edit Book Form -->
                     <div id="add-edit-form-container" class="max-w-xl mx-auto p-8 rounded-xl shadow-lg mb-8 bg-white ${isAdmin ? '' : 'hidden'}">
-                        <h2 id="add-edit-form-title" class="text-2xl font-bold text-indigo-700 mb-6">
+                        <h2 id="add-edit-form-title" class="text-2xl font-bold text-sub-header-light mb-6">
                             Add New Book
                         </h2>
 
                         <div id="isbn-search-section" class="mb-6 border-b border-gray-200 pb-4">
                             <h3 class="text-xl font-semibold text-gray-700 mb-3">Add by ISBN</h3>
                             <div class="flex space-x-2">
-                                <input type="text" id="isbn-search-input" placeholder="Enter ISBN" class="flex-grow px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"/>
-                                <button type="button" id="fetch-isbn-button" class="px-5 py-2 bg-purple-600 text-white font-medium rounded-lg shadow hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition duration-150 ease-in-out">
+                                <input type="text" id="isbn-search-input" placeholder="Enter ISBN" class="flex-grow px-4 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm"/>
+                                <button type="button" id="fetch-isbn-button" class="px-5 py-2 rounded-lg font-medium shadow btn-purple">
                                     Fetch Details
                                 </button>
                             </div>
@@ -570,25 +700,25 @@
                                 <label for="book-title" class="block text-sm font-medium text-gray-700 mb-1">
                                     Title
                                 </label>
-                                <input type="text" id="book-title" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="e.g., The Hobbit" required/>
+                                <input type="text" id="book-title" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm" placeholder="e.g., The Hobbit" required/>
                             </div>
                             <div>
                                 <label for="book-author" class="block text-sm font-medium text-gray-700 mb-1">
                                     Author
                                 </label>
-                                <input type="text" id="book-author" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="e.g., J.R.R. Tolkien" required/>
+                                <input type="text" id="book-author" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm" placeholder="e.g., J.R.R. Tolkien" required/>
                             </div>
                             <div>
                                 <label for="book-isbn" class="block text-sm font-medium text-gray-700 mb-1">
                                     ISBN (Optional)
                                 </label>
-                                <input type="text" id="book-isbn" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="e.g., 978-0-618-00221-4"/>
+                                <input type="text" id="book-isbn" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm" placeholder="e.g., 978-0-618-00221-4"/>
                             </div>
                             <div class="flex justify-end space-x-3">
-                                <button type="button" id="cancel-edit-button" class="px-5 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 hidden">
+                                <button type="button" id="cancel-edit-button" class="px-5 py-2 rounded-md shadow-sm text-sm font-medium hidden btn-secondary">
                                     Cancel
                                 </button>
-                                <button type="submit" id="add-update-button" class="px-6 py-2 bg-indigo-600 text-white font-medium rounded-lg shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                                <button type="submit" id="add-update-button" class="px-6 py-2 rounded-lg font-medium shadow btn-primary">
                                     Add Book
                                 </button>
                             </div>
@@ -597,13 +727,13 @@
 
                     <!-- Search Bar -->
                     <div class="max-w-xl mx-auto bg-white p-6 rounded-xl shadow-lg mb-8">
-                        <h2 class="text-2xl font-bold text-indigo-700 mb-4">Search Books</h2>
-                        <input type="text" id="search-input" placeholder="Search by title, author, or ISBN..." class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"/>
+                        <h2 class="text-2xl font-bold text-sub-header-light mb-4">Search Books</h2>
+                        <input type="text" id="search-input" placeholder="Search by title, author, or ISBN..." class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm"/>
                     </div>
 
                     <!-- Book List -->
                     <div class="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-lg">
-                        <h2 class="text-2xl font-bold text-indigo-700 mb-6">Your Books</h2>
+                        <h2 class="text-2xl font-bold text-sub-header-light mb-6">Your Books</h2>
                         <ul id="book-list" class="space-y-4">
                             <!-- Books will be rendered here -->
                         </ul>
@@ -631,7 +761,7 @@
                     Logged in as: <span class="font-semibold">${userEmail || userId || 'Anonymous'}</span>
                     ${isAdmin ? `<span class="ml-2 px-2 py-1 bg-yellow-400 text-yellow-900 rounded-full text-xs font-bold">ADMIN</span>` : ''}
                     ${userId ? `
-                    <button id="logout-button" class="ml-4 px-3 py-1 bg-red-500 text-white text-xs rounded-lg shadow hover:bg-red-600 transition duration-150 ease-in-out">
+                    <button id="logout-button" class="ml-4 px-3 py-1 rounded-lg shadow text-xs btn-red">
                         Logout
                     </button>
                     ` : ''}
@@ -675,7 +805,7 @@
             }
 
             bookListElement.innerHTML = filteredBooks.map(book => `
-                <li class="p-5 border rounded-lg shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center bg-gray-50 hover:bg-gray-100 border-gray-200 transition duration-150 ease-in-out">
+                <li class="p-5 border rounded-lg shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center bg-gray-50 hover:bg-gray-100 border-gray-200 transition duration-150 ease-in-out book-list-item">
                     <div class="flex-grow mb-3 sm:mb-0">
                         <h3 class="text-xl font-semibold text-gray-900">${book.title}</h3>
                         <p class="text-gray-700">by <span class="font-medium">${book.author}</span></p>
@@ -691,20 +821,20 @@
                     </div>
                     <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
                         <button onclick="handleBorrowReturn('${book.id}', ${book.borrowed_by ? `'${book.borrowed_by}'` : 'null'})"
-                            class="px-4 py-2 rounded-lg font-medium shadow transition duration-150 ease-in-out ${
+                            class="px-4 py-2 rounded-lg font-medium shadow ${
                                 book.borrowed_by
-                                    ? 'bg-yellow-500 text-white hover:bg-yellow-600'
-                                    : 'bg-green-500 text-white hover:bg-green-600'
+                                    ? 'btn-yellow' /* Changed to yellow for borrowed */
+                                    : 'btn-green' /* Changed to green for available */
                             }">
                             ${book.borrowed_by ? 'Mark as Returned' : 'Mark as Borrowed'}
                         </button>
                         ${isAdmin ? `
                         <button onclick="handleEditClick('${book.id}')"
-                            class="px-4 py-2 bg-blue-500 text-white rounded-lg font-medium shadow hover:bg-blue-600 transition duration-150 ease-in-out">
+                            class="px-4 py-2 rounded-lg font-medium shadow btn-blue">
                             Edit
                         </button>
                         <button onclick="handleDeleteBook('${book.id}')"
-                            class="px-4 py-2 bg-red-500 text-white rounded-lg font-medium shadow hover:bg-red-600 transition duration-150 ease-in-out">
+                            class="px-4 py-2 rounded-lg font-medium shadow btn-red">
                             Delete
                         </button>
                         ` : ''}
@@ -725,11 +855,16 @@
 
         function applyTheme(theme) {
             const body = document.body;
-            // Removed modalContent from theme application
-
-            const authFormElements = document.querySelectorAll('#auth-form input, #auth-form label, #auth-form button.secondary');
-            const mainContentElements = document.querySelectorAll('#app input, #app label, #app button.secondary, #app h2, #app h3, #app p.text-gray-700, #app p.text-gray-600, #app li.bg-gray-50, #app li.border-gray-200');
-
+            // Select elements more specifically for theming
+            const textHeaderElements = document.querySelectorAll('h1, h2');
+            const textSubHeaderElements = document.querySelectorAll('h2');
+            const textMutedElements = document.querySelectorAll('p.text-gray-600, p.text-gray-500, p.text-gray-700, .modal-buttons button.secondary');
+            const inputElements = document.querySelectorAll('input, select');
+            const bgWhiteElements = document.querySelectorAll('.bg-white');
+            const bgGray50Elements = document.querySelectorAll('.bg-gray-50');
+            const borderGray200Elements = document.querySelectorAll('.border-gray-200');
+            const borderGray300Elements = document.querySelectorAll('.border-gray-300');
+            const hoverGray100Elements = document.querySelectorAll('.hover\\:bg-gray-100');
 
             if (theme === 'dark') {
                 body.classList.remove('light-mode');
@@ -737,11 +872,26 @@
                 const themeToggleButton = document.getElementById('theme-toggle');
                 if(themeToggleButton) themeToggleButton.textContent = 'Switch to Light Mode';
 
-                // Removed modalContent.classList.add('dark-mode');
-                // Removed document.querySelectorAll('.modal-buttons input').forEach(el => el.classList.add('dark-mode'));
-
-                authFormElements.forEach(el => el.classList.add('dark-mode'));
-                mainContentElements.forEach(el => el.classList.add('dark-mode'));
+                textHeaderElements.forEach(el => {
+                    el.classList.remove('text-header-light');
+                    el.classList.add('text-header-dark');
+                });
+                textSubHeaderElements.forEach(el => {
+                    el.classList.remove('text-sub-header-light');
+                    el.classList.add('text-sub-header-dark');
+                });
+                textMutedElements.forEach(el => {
+                    el.classList.remove('text-gray-600', 'text-gray-500', 'text-gray-700');
+                    el.classList.add('text-gray-300');
+                });
+                inputElements.forEach(el => {
+                    el.classList.add('dark-mode');
+                });
+                bgWhiteElements.forEach(el => el.classList.add('dark-mode'));
+                bgGray50Elements.forEach(el => el.classList.add('dark-mode'));
+                borderGray200Elements.forEach(el => el.classList.add('dark-mode'));
+                borderGray300Elements.forEach(el => el.classList.add('dark-mode'));
+                hoverGray100Elements.forEach(el => el.classList.add('dark-mode'));
 
 
             } else {
@@ -750,11 +900,37 @@
                 const themeToggleButton = document.getElementById('theme-toggle');
                 if(themeToggleButton) themeToggleButton.textContent = 'Switch to Dark Mode';
 
-                // Removed modalContent.classList.remove('dark-mode');
-                // Removed document.querySelectorAll('.modal-buttons input').forEach(el => el.classList.remove('dark-mode'));
-
-                authFormElements.forEach(el => el.classList.remove('dark-mode'));
-                mainContentElements.forEach(el => el.classList.remove('dark-mode'));
+                textHeaderElements.forEach(el => {
+                    el.classList.remove('text-header-dark');
+                    el.classList.add('text-header-light');
+                });
+                textSubHeaderElements.forEach(el => {
+                    el.classList.remove('text-sub-header-dark');
+                    el.classList.add('text-sub-header-light');
+                });
+                textMutedElements.forEach(el => {
+                    // Re-add original light mode classes as appropriate
+                    if (el.classList.contains('modal-buttons')) { /* specific handling if needed */ }
+                    el.classList.remove('text-gray-300');
+                    // Add appropriate original classes back if they were removed
+                    if (el.tagName === 'P') {
+                        if (el.textContent.includes('personal book tracker')) el.classList.add('text-gray-600');
+                        else if (el.textContent.includes('Logged in as')) el.classList.add('text-gray-500');
+                        else el.classList.add('text-gray-700'); // Default for labels/other p tags
+                    } else if (el.tagName === 'LABEL') {
+                         el.classList.add('text-gray-700');
+                    } else if (el.tagName === 'BUTTON') {
+                        el.classList.add('text-gray-700');
+                    }
+                });
+                inputElements.forEach(el => {
+                    el.classList.remove('dark-mode');
+                });
+                bgWhiteElements.forEach(el => el.classList.remove('dark-mode'));
+                bgGray50Elements.forEach(el => el.classList.remove('dark-mode'));
+                borderGray200Elements.forEach(el => el.classList.remove('dark-mode'));
+                borderGray300Elements.forEach(el => el.classList.remove('dark-mode'));
+                hoverGray100Elements.forEach(el => el.classList.remove('dark-mode'));
             }
         }
 
@@ -765,7 +941,6 @@
         window.handleDeleteBook = handleDeleteBook;
         window.toggleTheme = toggleTheme;
         window.applyTheme = applyTheme;
-        // Removed showCustomModal from window exposure
         window.handleAuth = handleAuth;
         window.handleLogout = handleLogout;
 
