@@ -80,6 +80,7 @@
             width: 100%;
             margin: auto;
             text-align: center;
+            position: relative; /* Needed for absolute positioning of close button */
         }
 
         .dark-mode .modal-content {
@@ -201,6 +202,7 @@
         function showCustomModal(message, type = 'alert', onConfirm = null, onCancel = null) {
             modal.innerHTML = `
                 <div class="modal-content ${document.body.classList.contains('dark-mode') ? 'dark-mode' : ''}">
+                    <button class="modal-close-button absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-2xl font-bold">&times;</button>
                     <div class="modal-message">${message}</div>
                     <div class="modal-buttons flex justify-center space-x-3 mt-4">
                         ${type === 'alert' ?
@@ -223,6 +225,12 @@
                     modal.style.display = 'none';
                     if (onCancel) onCancel(); // Call cancel if background is clicked
                 }
+            };
+
+            // Add event listener for the new close button
+            document.querySelector('.modal-close-button').onclick = () => {
+                modal.style.display = 'none';
+                if (onCancel) onCancel(); // Treat close button as a cancel action
             };
 
             if (type === 'alert') {
@@ -908,8 +916,8 @@
         window.toggleTheme = toggleTheme;
         window.applyTheme = applyTheme;
         window.showCustomModal = showCustomModal;
-        window.handleAuth = handleAuth; // Expose for auth form
-        window.handleLogout = handleLogout; // Expose for logout button
+        window.handleAuth = handleAuth;
+        window.handleLogout = handleLogout;
 
         // Initialize the app when the window loads
         window.onload = initializeSupabase;
