@@ -22,123 +22,119 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* Light mode defaults */
+        /* Light mode defaults (now purple-tinted) */
         .light-mode {
-            background-image: linear-gradient(225deg, #e0e7ff, #ede9fe, #dbeafe, #eef2ff); /* More complex gradient */
-            color: #1a202c; /* text-gray-900 */
+            background-image: linear-gradient(225deg, #e1bee7, #ce93d8, #e0b0e9, #f3e5f5); /* Lighter purples */
+            color: #1A1A1D; /* Near black text */
         }
         .light-mode .bg-white {
             background-color: #ffffff;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 5px 15px -5px rgba(0, 0, 0, 0.04); /* Deeper shadow */
             border: 1px solid rgba(229, 231, 235, 0.7); /* Lighter border */
         }
-        .light-mode .text-indigo-800 { color: #312e81; }
-        .light-mode .text-indigo-700 { color: #4338ca; }
-        .light-mode .text-gray-600 { color: #4b5563; }
-        .light-mode .text-gray-500 { color: #6b7280; }
-        .light-mode .text-gray-900 { color: #1a202c; }
-        .light-mode .text-gray-700 { color: #374151; }
-        .light-mode .border-gray-200 { border-color: #e5e7eb; }
+        .light-mode .text-gray-600 { color: #4A148C; } /* Purple for main text */
+        .light-mode .text-gray-500 { color: #6A1B9A; } /* Medium purple for hints */
+        .light-mode .text-gray-900 { color: #1A1A1D; } /* Primary text color (near black) */
+        .light-mode .text-gray-700 { color: #3E2723; } /* Darker text for labels etc. (warm hint) */
+        .light-mode .border-gray-200 { border-color: #E1BEE7; } /* Light purple border */
         .light-mode .bg-gray-50 {
-            background-color: #f9fafb;
+            background-color: #F3E5F5; /* Very light purple/pinkish */
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); /* Subtle shadow for list items */
         }
-        .light-mode .hover\:bg-gray-100:hover { background-color: #f3f4f6; }
-        .light-mode .border-gray-300 { border-color: #d1d5db; }
-        .light-mode input, .light-mode select { background-color: #ffffff; color: #1a202c; border-color: #d1d5db; }
+        .light-mode .hover\:bg-gray-100:hover { background-color: #EDE7F6; } /* Slightly darker light purple */
+        .light-mode .border-gray-300 { border-color: #CE93D8; } /* Medium purple border */
+        .light-mode input, .light-mode select { background-color: #ffffff; color: #1A1A1D; border-color: #CE93D8; }
 
 
-        /* Dark mode styles */
+        /* Dark mode styles (black and purple dominant) */
         .dark-mode {
-            background-image: linear-gradient(225deg, #2d3748, #1a202c, #2c313a, #1f2733); /* Darker gradient */
-            color: #e2e8f0; /* text-gray-100 */
+            background-image: linear-gradient(225deg, #1A1A1D, #212121, #2C2C30, #3E2723); /* Black/dark grey with slight warm hint */
+            color: #E1BEE7; /* Light purple text */
         }
         .dark-mode .bg-white {
-            background-color: #2d3748; /* dark equivalent */
+            background-color: #2C2C30; /* Dark grey for cards */
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 5px 15px -5px rgba(0, 0, 0, 0.1); /* Deeper shadow for dark mode */
-            border: 1px solid rgba(74, 85, 104, 0.7); /* Darker border */
+            border: 1px solid #4A148C; /* Deep purple border */
         }
-        .dark-mode .text-indigo-800 { color: #a5b4fc; /* text-indigo-300 */ }
-        .dark-mode .text-indigo-700 { color: #818cf8; /* text-indigo-300 */ }
-        .dark-mode .text-gray-600 { color: #a0aec0; /* text-gray-300 */ }
-        .dark-mode .text-gray-500 { color: #a0aec0; /* text-gray-400 */ }
-        .dark-mode .text-gray-900 { color: #e2e8f0; /* text-gray-100 */ }
-        .dark-mode .text-gray-700 { color: #cbd5e0; /* text-gray-300 */ }
-        .dark-mode .border-gray-200 { border-color: #4a5568; /* dark equivalent */ }
+        .dark-mode .text-gray-600 { color: #CE93D8; } /* Medium-light purple */
+        .dark-mode .text-gray-500 { color: #E1BEE7; } /* Light purple for hints */
+        .dark-mode .text-gray-900 { color: #E1BEE7; } /* Primary text color (light purple) */
+        .dark-mode .text-gray-700 { color: #D7CCC8; } /* Lighter grey for labels (warm hint) */
+        .dark-mode .border-gray-200 { border-color: #4A148C; } /* Deep purple border */
         .dark-mode .bg-gray-50 {
-            background-color: #2d3748; /* dark equivalent */
+            background-color: #3E2723; /* Darker brown-grey for list items */
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.08);
         }
-        .dark-mode .hover\:bg-gray-100:hover { background-color: #4a5568; /* dark equivalent */ }
-        .dark-mode .border-gray-300 { border-color: #4a5568; /* dark equivalent */ }
-        .dark-mode input, .dark-mode select { background-color: #4a5568; color: #e2e8f0; border-color: #4a5568; }
+        .dark-mode .hover\:bg-gray-100:hover { background-color: #4A302A; } /* Slightly darker brown-grey */
+        .dark-mode .border-gray-300 { border-color: #6A1B9A; } /* Medium purple border */
+        .dark-mode input, .dark-mode select { background-color: #4A148C; color: #E1BEE7; border-color: #6A1B9A; }
         .dark-mode input.focus\:border-indigo-500:focus,
         .dark-mode input.focus\:ring-indigo-500:focus {
-            border-color: #818cf8;
-            box-shadow: 0 0 0 1px #818cf8;
+            border-color: #9C27B0 !important;
+            box-shadow: 0 0 0 3px rgba(156, 39, 176, 0.4) !important;
         }
 
         /* Enhanced Button Styling */
         .btn-primary {
-            background: linear-gradient(to right, #6366f1, #818cf8); /* Indigo to light indigo */
+            background: linear-gradient(to right, #6A1B9A, #9C27B0); /* Medium to vibrant purple */
             color: white;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+            box-shadow: 0 4px 10px rgba(106, 27, 154, 0.4);
         }
         .btn-primary:hover {
-            background: linear-gradient(to right, #4f46e5, #6366f1);
-            box-shadow: 0 6px 15px rgba(99, 102, 241, 0.4);
+            background: linear-gradient(to right, #4A148C, #6A1B9A); /* Deeper purple on hover */
+            box-shadow: 0 6px 15px rgba(106, 27, 154, 0.5);
             transform: translateY(-1px);
         }
 
         .btn-secondary {
             background-color: #ffffff;
-            color: #374151;
-            border: 1px solid #d1d5db;
+            color: #4A148C; /* Deep purple text */
+            border: 1px solid #9C27B0; /* Vibrant purple border */
             transition: all 0.3s ease;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         }
         .btn-secondary:hover {
-            background-color: #f3f4f6;
+            background-color: #F3E5F5; /* Light purple hover */
             transform: translateY(-1px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         .dark-mode .btn-secondary {
-            background-color: #2d3748;
-            color: #cbd5e0;
-            border-color: #4a5568;
+            background-color: #1A1A1D; /* Near black */
+            color: #E1BEE7; /* Light purple text */
+            border-color: #4A148C; /* Deep purple border */
         }
         .dark-mode .btn-secondary:hover {
-            background-color: #4a5568;
+            background-color: #2C2C30; /* Dark grey hover */
         }
 
 
-        .btn-green {
-            background: linear-gradient(to right, #34d399, #10b981); /* Emerald green */
+        .btn-green { /* Used for 'Available' books, now a vibrant green for contrast */
+            background: linear-gradient(to right, #50C878, #36B368);
             color: white;
             transition: all 0.3s ease;
             box-shadow: 0 4px 10px rgba(52, 211, 153, 0.3);
         }
         .btn-green:hover {
-            background: linear-gradient(to right, #10b981, #059669);
+            background: linear-gradient(to right, #36B368, #239A5D);
             box-shadow: 0 6px 15px rgba(52, 211, 153, 0.4);
             transform: translateY(-1px);
         }
 
-        .btn-yellow {
-            background: linear-gradient(to right, #fbbf24, #f59e0b); /* Amber yellow */
+        .btn-yellow { /* Used for 'Borrowed' books, now a prominent red hint */
+            background: linear-gradient(to right, #D32F2F, #B71C1C); /* Darker Red */
             color: white;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(251, 191, 36, 0.3);
+            box-shadow: 0 4px 10px rgba(211, 47, 47, 0.4);
         }
         .btn-yellow:hover {
-            background: linear-gradient(to right, #f59e0b, #d97706);
-            box-shadow: 0 6px 15px rgba(251, 191, 36, 0.4);
+            background: linear-gradient(to right, #B71C1C, #8F0000);
+            box-shadow: 0 6px 15px rgba(211, 47, 47, 0.5);
             transform: translateY(-1px);
         }
 
-        .btn-red {
-            background: linear-gradient(to right, #ef4444, #dc2626); /* Red */
+        .btn-red { /* Used for Logout/Delete - kept as strong red */
+            background: linear-gradient(to right, #ef4444, #dc2626);
             color: white;
             transition: all 0.3s ease;
             box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
@@ -149,31 +145,34 @@
             transform: translateY(-1px);
         }
 
-        .btn-blue {
-            background: linear-gradient(to right, #3b82f6, #2563eb); /* Blue */
+        .btn-blue { /* Used for Edit button, now a blue-purple */
+            background: linear-gradient(to right, #673AB7, #5E35B1); /* Deep Purple-Blue */
             color: white;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 4px 10px rgba(103, 58, 183, 0.3);
         }
         .btn-blue:hover {
-            background: linear-gradient(to right, #2563eb, #1d4ed8);
-            box-shadow: 0 6px 15px rgba(59, 130, 246, 0.4);
+            background: linear-gradient(to right, #5E35B1, #4527A0);
+            box-shadow: 0 6px 15px rgba(103, 58, 183, 0.4);
             transform: translateY(-1px);
         }
 
-        .btn-purple {
-            background: linear-gradient(to right, #a855f7, #9333ea); /* Purple */
+        .btn-purple { /* Used for Fetch Details, now a distinct purple */
+            background: linear-gradient(to right, #8E24AA, #7B1FA2); /* Vibrant Purple */
             color: white;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(168, 85, 247, 0.3);
+            box-shadow: 0 4px 10px rgba(142, 36, 170, 0.3);
         }
         .btn-purple:hover {
-            background: linear-gradient(to right, #9333ea, #7e22ce);
-            box-shadow: 0 6px 15px rgba(168, 85, 247, 0.4);
+            background: linear-gradient(to right, #7B1FA2, #6A1B9A);
+            box-shadow: 0 6px 15px rgba(142, 36, 170, 0.4);
             transform: translateY(-1px);
         }
 
         /* Enhanced list item hover effect */
+        .book-list-item {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
         .book-list-item:hover {
             transform: translateY(-3px);
             box-shadow: 0 8px 20px -5px rgba(0, 0, 0, 0.15), 0 4px 10px -5px rgba(0, 0, 0, 0.08);
@@ -185,20 +184,20 @@
         /* Adjust input focus styles for better contrast */
         input:focus {
             outline: none;
-            border-color: #6366f1 !important; /* Tailwind's indigo-500 */
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3) !important; /* Tailwind's indigo-500 with opacity */
+            border-color: #9C27B0 !important; /* Vibrant purple */
+            box-shadow: 0 0 0 3px rgba(156, 39, 176, 0.4) !important; /* Vibrant purple with opacity */
         }
         .dark-mode input:focus {
-            border-color: #818cf8 !important;
-            box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.3) !important;
+            border-color: #E1BEE7 !important; /* Light purple */
+            box-shadow: 0 0 0 3px rgba(225, 190, 231, 0.4) !important; /* Light purple with opacity */
         }
 
         /* Ensure heading colors are affected by theme */
-        .text-header-light { color: #312e81; /* indigo-800 */ }
-        .text-header-dark { color: #a5b4fc; /* indigo-300 */ }
+        .text-header-light { color: #4A148C; /* Deep purple */ }
+        .text-header-dark { color: #E1BEE7; /* Light purple */ }
 
-        .text-sub-header-light { color: #4338ca; /* indigo-700 */ }
-        .text-sub-header-dark { color: #818cf8; /* indigo-300 */ }
+        .text-sub-header-light { color: #6A1B9A; /* Medium purple */ }
+        .text-sub-header-dark { color: #CE93D8; /* Medium-light purple */ }
 
     </style>
 </head>
@@ -937,19 +936,26 @@
             // Select elements more specifically for theming
             const textHeaderElements = document.querySelectorAll('h1, h2');
             const textSubHeaderElements = document.querySelectorAll('h2');
-            const textMutedElements = document.querySelectorAll('p.text-gray-600, p.text-gray-500, p.text-gray-700, .modal-buttons button.secondary');
+            const textMutedElements = document.querySelectorAll('p.text-gray-600, p.text-gray-500, p.text-gray-700'); /* Removed button.secondary as it's a btn-secondary now */
             const inputElements = document.querySelectorAll('input, select');
             const bgWhiteElements = document.querySelectorAll('.bg-white');
             const bgGray50Elements = document.querySelectorAll('.bg-gray-50');
             const borderGray200Elements = document.querySelectorAll('.border-gray-200');
             const borderGray300Elements = document.querySelectorAll('.border-gray-300');
             const hoverGray100Elements = document.querySelectorAll('.hover\\:bg-gray-100');
+            const buttonsGray200 = document.querySelectorAll('button.bg-gray-200'); /* For theme toggle button */
+
 
             if (theme === 'dark') {
                 body.classList.remove('light-mode');
                 body.classList.add('dark-mode');
                 const themeToggleButton = document.getElementById('theme-toggle');
                 if(themeToggleButton) themeToggleButton.textContent = 'Switch to Light Mode';
+                buttonsGray200.forEach(el => { /* Special handling for theme toggle */
+                    el.classList.remove('bg-gray-200', 'text-gray-800', 'hover:bg-gray-300');
+                    el.classList.add('bg-gray-700', 'text-gray-200', 'hover:bg-gray-600');
+                });
+
 
                 textHeaderElements.forEach(el => {
                     el.classList.remove('text-header-light');
@@ -961,7 +967,7 @@
                 });
                 textMutedElements.forEach(el => {
                     el.classList.remove('text-gray-600', 'text-gray-500', 'text-gray-700');
-                    el.classList.add('text-gray-300');
+                    el.classList.add('text-gray-300'); /* A general light grey for muted text in dark mode */
                 });
                 inputElements.forEach(el => {
                     el.classList.add('dark-mode');
@@ -973,11 +979,15 @@
                 hoverGray100Elements.forEach(el => el.classList.add('dark-mode'));
 
 
-            } else {
+            } else { /* Light Mode */
                 body.classList.remove('dark-mode');
                 body.classList.add('light-mode');
                 const themeToggleButton = document.getElementById('theme-toggle');
                 if(themeToggleButton) themeToggleButton.textContent = 'Switch to Dark Mode';
+                buttonsGray200.forEach(el => { /* Special handling for theme toggle */
+                    el.classList.remove('bg-gray-700', 'text-gray-200', 'hover:bg-gray-600');
+                    el.classList.add('bg-gray-200', 'text-gray-800', 'hover:bg-gray-300');
+                });
 
                 textHeaderElements.forEach(el => {
                     el.classList.remove('text-header-dark');
@@ -988,18 +998,14 @@
                     el.classList.add('text-sub-header-light');
                 });
                 textMutedElements.forEach(el => {
-                    // Re-add original light mode classes as appropriate
-                    if (el.classList.contains('modal-buttons')) { /* specific handling if needed */ }
                     el.classList.remove('text-gray-300');
-                    // Add appropriate original classes back if they were removed
+                    // Re-add appropriate original classes based on content/tag type
                     if (el.tagName === 'P') {
                         if (el.textContent.includes('personal book tracker')) el.classList.add('text-gray-600');
                         else if (el.textContent.includes('Logged in as')) el.classList.add('text-gray-500');
-                        else el.classList.add('text-gray-700'); // Default for labels/other p tags
+                        else el.classList.add('text-gray-700'); /* Default for p tags */
                     } else if (el.tagName === 'LABEL') {
                          el.classList.add('text-gray-700');
-                    } else if (el.tagName === 'BUTTON') {
-                        el.classList.add('text-gray-700');
                     }
                 });
                 inputElements.forEach(el => {
