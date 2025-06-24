@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Family Library</title>
+    <!-- Tailwind CSS CDN for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -158,44 +159,38 @@
 </head>
 <body class="light-mode">
     <div id="app" class="min-h-screen p-4">
+        <!-- Content will be rendered here by JavaScript -->
         <div class="min-h-screen flex items-center justify-center">
             <p id="loading-message" class="text-xl text-indigo-700 animate-pulse">Loading library...</p>
         </div>
     </div>
 
+    <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script type="module">
-        // Destructure createClient directly from window.supabase once it's available
-        // This ensures supabase is initialized before createClient is accessed.
         let createClient;
         if (window.supabase) {
             createClient = window.supabase.createClient;
         } else {
-            // Fallback if window.supabase is not immediately available (shouldn't happen with CDN)
             console.error("Supabase SDK not loaded on window.supabase. Please check CDN script.");
-            // You might want to handle this more robustly, e.g., show a persistent error.
         }
 
-
-        // --- Supabase Configuration (REPLACE WITH YOUR ACTUAL PROJECT URL AND ANON KEY) ---
         const SUPABASE_URL = 'https://nhoozjzvkydxwlrshqis.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ob296anp2a3lkeHdscnNocWlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA3NzMyNDEsImV4cCI6MjA2NjM0OTI0MX0.5PfsT7CBIBOIziR8k0FsMPZzW0z7EzVrzFaWvhOIK9M';
 
-        let supabase = null; // Supabase client instance
-        let userId = null; // Stores user UUID
-        let userEmail = null; // Stores user email
+        let supabase = null;
+        let userId = null;
+        let userEmail = null;
         let isAdmin = false;
         let books = [];
-        let editingBook = null; // Stores the book object being edited
+        let editingBook = null;
 
-        // IMPORTANT: Replace these with the actual UUIDs of your admin users from Supabase Auth -> Users table
         const adminUids = [
             'ca6c353e-d022-4bef-b567-e02ecdbc552d', // Replace with anirudhrajesh04@gmail.com's UID
             '89c9470e-abfb-490e-9564-6d2c477d0c9e'  // Replace with anirudhrajesh999@gmail.com's UID
         ];
 
-        // DOM Elements
         const appDiv = document.getElementById('app');
         const loadingMessage = document.getElementById('loading-message');
         const modal = document.createElement('div');
@@ -222,13 +217,18 @@
                     </div>
                 </div>
             `;
-            modal.style.display = 'flex'; // Show modal
+            modal.style.display = 'flex';
+            modal.onclick = (e) => { // Close modal if clicking outside content
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                    if (onCancel) onCancel(); // Call cancel if background is clicked
+                }
+            };
 
-            // Attach event listeners based on modal type
             if (type === 'alert') {
                 document.getElementById('modal-ok-btn').onclick = () => {
                     modal.style.display = 'none';
-                    if (onConfirm) onConfirm(); // Execute optional callback
+                    if (onConfirm) onConfirm();
                 };
             } else if (type === 'confirm') {
                 document.getElementById('modal-confirm-btn').onclick = () => {
@@ -241,7 +241,7 @@
                 };
             } else if (type === 'prompt') {
                 const promptInput = document.getElementById('modal-prompt-input');
-                promptInput.focus(); // Focus the input field
+                promptInput.focus();
 
                 document.getElementById('modal-prompt-ok-btn').onclick = () => {
                     modal.style.display = 'none';
@@ -257,57 +257,61 @@
         // --- Supabase Initialization ---
         async function initializeSupabase() {
             try {
-                if (SUPABASE_URL === 'YOUR_SUPABASE_URL' || SUPABASE_ANON_KEY === 'YOUR_SUPABASE_ANON_KEY') {
-                    throw new Error("Supabase URL or Anon Key not configured. Please replace placeholders.");
+                if (!createClient) {
+                    console.error("createClient is not available. Supabase SDK might not be loaded correctly.");
+                    loadingMessage.textContent = "Error: Supabase SDK failed to load.";
+                    showCustomModal("Error initializing Supabase. Check console for details.");
+                    return;
                 }
 
-                // Initialize Supabase client AFTER createClient is correctly defined
                 supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                window.supabaseClient = supabase; // Expose for console debugging
 
-                // Listen for auth state changes from Supabase
                 supabase.auth.onAuthStateChange((event, session) => {
                     if (session && session.user) {
                         userId = session.user.id;
                         userEmail = session.user.email;
-                        isAdmin = adminUids.includes(userId); // Check admin status using UID
-                        console.log("Supabase Auth User:", userId, "Email:", userEmail, "Is Admin:", isAdmin);
+                        isAdmin = adminUids.includes(userId);
+                        console.log("Supabase Auth User:", userId, "Email:", userEmail, "Is Admin:", isAdmin, "Auth Event:", event);
+                        renderView('main'); // Show main app if logged in
                     } else {
                         userId = null;
                         userEmail = null;
                         isAdmin = false;
-                        console.log("No Supabase user session.");
+                        console.log("No Supabase user session. Auth Event:", event);
+                        renderView('auth'); // Show login page if not logged in
                     }
-                    // Once auth state is determined, hide loading and render the app
                     loadingMessage.style.display = 'none';
-                    renderApp(); // Re-render app to update user info/admin sections
-                    setupRealtimeBooksListener(); // Re-setup listener if user state changes
+                    updateUserInfoDisplay(); // Update user info display immediately
+                    setupRealtimeBooksListener(); // Re-setup listener on auth change
                 });
 
-                // Manually trigger initial auth check in case onAuthStateChange doesn't fire immediately on load
+                // Initial check for existing session
                 const { data: { user }, error: userError } = await supabase.auth.getUser();
                 if (user) {
                     userId = user.id;
                     userEmail = user.email;
                     isAdmin = adminUids.includes(userId);
+                    loadingMessage.style.display = 'none';
+                    renderView('main');
+                } else {
+                    loadingMessage.style.display = 'none';
+                    renderView('auth');
                 }
-                loadingMessage.style.display = 'none';
-                renderApp();
+                updateUserInfoDisplay();
                 setupRealtimeBooksListener();
-
 
             } catch (error) {
                 console.error("Error initializing Supabase:", error);
                 loadingMessage.textContent = "Failed to load library.";
-                showCustomModal(`Failed to initialize the application: ${error.message}. Please configure Supabase keys and check console.`);
+                showCustomModal(`Failed to initialize the application: ${error.message}. Please check console.`);
             }
         }
 
-        // --- Fetch Book Details from Supabase (including email for borrowedBy/addedBy if possible) ---
-        // This function will now also fetch user emails for display purposes if possible.
+        // --- Fetch Book Details from Supabase ---
         async function fetchAndRenderBooks() {
             if (!supabase) return;
 
-            // Fetch books and also try to join with auth.users for email, if allowed by RLS
             const { data, error } = await supabase
                 .from('books')
                 .select(`
@@ -318,7 +322,7 @@
                     borrowed_by,
                     last_modified,
                     added_by
-                `); // Select columns as per your SQL schema
+                `);
 
             if (error) {
                 console.error("Error fetching books from Supabase:", error);
@@ -326,23 +330,18 @@
                 return;
             }
 
-            // Map books to include user emails if available and needed for display
             books = data.map(book => {
-                // If a book is borrowed by a user, try to show their email if available and they are the current user
-                // Otherwise, just show their UID. For a robust solution, you'd need a 'profiles' table.
-                let displayBorrowedBy = book.borrowed_by; // Use borrowed_by from DB
+                let displayBorrowedBy = book.borrowed_by;
                 if (book.borrowed_by && userId && book.borrowed_by === userId) {
                     displayBorrowedBy = userEmail || book.borrowed_by;
                 } else if (book.borrowed_by) {
-                    // For other UIDs, without a profiles table, just display the UID
                     displayBorrowedBy = book.borrowed_by;
                 }
 
-                let displayAddedBy = book.added_by; // Use added_by from DB
+                let displayAddedBy = book.added_by;
                 if (book.added_by && userId && book.added_by === userId) {
                     displayAddedBy = userEmail || book.added_by;
                 } else if (book.added_by) {
-                    // For other UIDs, without a profiles table, just display the UID
                     displayAddedBy = book.added_by;
                 }
 
@@ -351,28 +350,26 @@
                     displayBorrowedBy: displayBorrowedBy,
                     displayAddedBy: displayAddedBy
                 };
-            }).sort((a, b) => a.title.localeCompare(b.title)); // Sort alphabetically
+            }).sort((a, b) => a.title.localeCompare(b.title));
 
-            renderBookList(); // Re-render the book list
+            renderBookList();
         }
 
         // --- Real-time Books Listener ---
         function setupRealtimeBooksListener() {
             if (!supabase) return;
 
-            // Unsubscribe existing channels to avoid duplicates if this is called multiple times
-            // This is good practice for real-time listeners.
             supabase.removeAllChannels();
 
             supabase
-                .channel('books_changes') // Name of the channel
+                .channel('books_changes')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'books' }, payload => {
                     console.log('Change received!', payload);
-                    fetchAndRenderBooks(); // Re-fetch all data on any change for simplicity
+                    fetchAndRenderBooks();
                 })
                 .subscribe();
 
-            fetchAndRenderBooks(); // Initial fetch to populate data when listener is set up
+            fetchAndRenderBooks();
         }
 
         // --- Fetch Book Details from Google Books API by ISBN ---
@@ -393,7 +390,7 @@
                     const volumeInfo = data.items[0].volumeInfo;
                     document.getElementById('book-title').value = volumeInfo.title || '';
                     document.getElementById('book-author').value = volumeInfo.authors ? volumeInfo.authors.join(', ') : '';
-                    document.getElementById('book-isbn').value = isbnSearchInput; // Keep ISBN from search
+                    document.getElementById('book-isbn').value = isbnSearchInput;
                     showCustomModal("Book details fetched successfully!");
                 } else {
                     showCustomModal("No book found for this ISBN. Please enter details manually.");
@@ -430,7 +427,6 @@
 
             try {
                 if (editingBook) {
-                    // Update existing book
                     const { data, error } = await supabase
                         .from('books')
                         .update({
@@ -444,14 +440,13 @@
                     if (error) throw error;
 
                     showCustomModal("Book updated successfully!");
-                    editingBook = null; // Clear editing state
-                    document.getElementById('add-edit-book-form').reset(); // Clear form
-                    document.getElementById('add-edit-form-title').textContent = 'Add New Book'; // Reset title
-                    document.getElementById('add-update-button').textContent = 'Add Book'; // Reset button text
-                    document.getElementById('cancel-edit-button').classList.add('hidden'); // Hide cancel button
-                    document.getElementById('isbn-search-section').classList.remove('hidden'); // Show ISBN search again
+                    editingBook = null;
+                    document.getElementById('add-edit-book-form').reset();
+                    document.getElementById('add-edit-form-title').textContent = 'Add New Book';
+                    document.getElementById('add-update-button').textContent = 'Add Book';
+                    document.getElementById('cancel-edit-button').classList.add('hidden');
+                    document.getElementById('isbn-search-section').classList.remove('hidden');
                 } else {
-                    // Add new book
                     const { data, error } = await supabase
                         .from('books')
                         .insert([
@@ -467,8 +462,8 @@
                     if (error) throw error;
 
                     showCustomModal("Book added successfully!");
-                    document.getElementById('add-edit-book-form').reset(); // Clear form
-                    document.getElementById('isbn-search-input').value = ''; // Clear ISBN search input
+                    document.getElementById('add-edit-book-form').reset();
+                    document.getElementById('isbn-search-input').value = '';
                 }
             } catch (e) {
                 console.error("Error saving book: ", e);
@@ -487,7 +482,7 @@
                 document.getElementById('add-edit-form-title').textContent = 'Edit Book Details';
                 document.getElementById('add-update-button').textContent = 'Update Book';
                 document.getElementById('cancel-edit-button').classList.remove('hidden');
-                document.getElementById('isbn-search-section').classList.add('hidden'); // Hide ISBN search when editing
+                document.getElementById('isbn-search-section').classList.add('hidden');
             }
         }
 
@@ -509,18 +504,18 @@
             }
 
             let message = '';
-            let newBorrowedByValue = null; // Will be a UUID or null
+            let newBorrowedByValue = null;
 
-            if (currentBorrowedByUid && currentBorrowedByUid !== 'null') { // If currently borrowed (and not literally the string 'null')
-                if (currentBorrowedByUid === userId) { // If current user borrowed it, allow return
-                    newBorrowedByValue = null; // Mark as returned
+            if (currentBorrowedByUid && currentBorrowedByUid !== 'null') {
+                if (currentBorrowedByUid === userId) {
+                    newBorrowedByValue = null;
                     message = "Book returned successfully!";
                 } else {
                     showCustomModal("This book is borrowed by another user. Only the borrower can return it.");
                     return;
                 }
-            } else { // If not borrowed, allow current user to borrow
-                newBorrowedByValue = userId; // Current user's UID is borrowing
+            } else {
+                newBorrowedByValue = userId;
                 message = `Book borrowed by you!`;
             }
 
@@ -556,7 +551,7 @@
             showCustomModal(
                 "Are you sure you want to delete this book?",
                 'confirm',
-                async () => { // On Confirm
+                async () => {
                     try {
                         const { error } = await supabase
                             .from('books')
@@ -570,103 +565,204 @@
                         showCustomModal(`Error deleting book: ${e.message}. Please check RLS policies.`);
                     }
                 },
-                () => { // On Cancel
+                () => {
                     showCustomModal("Delete action cancelled.");
                 }
             );
         }
 
-        // --- Render the main application structure ---
-        function renderApp() {
-            appDiv.innerHTML = `
-                <header class="text-center mb-8">
-                    <h1 class="text-4xl font-extrabold mb-2 text-indigo-800">
-                        Family Library
-                    </h1>
-                    <p class="text-lg text-gray-600">
-                        Your personal book tracker for the whole family.
-                    </p>
-                    <p class="text-sm mt-2 text-gray-500" id="user-info">
-                        Logged in as: <span class="font-semibold">${userEmail || userId || 'Anonymous'}</span>
-                        ${isAdmin ? `<span class="ml-2 px-2 py-1 bg-yellow-400 text-yellow-900 rounded-full text-xs font-bold">ADMIN</span>` : ''}
-                    </p>
-                    <button id="theme-toggle" class="mt-4 px-4 py-2 rounded-lg font-medium shadow transition duration-150 ease-in-out bg-gray-200 text-gray-800 hover:bg-gray-300">
-                        Switch to Dark Mode
-                    </button>
-                </header>
+        // --- Authentication Functions ---
+        async function handleAuth(event, isSignUp) {
+            event.preventDefault();
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value.trim();
 
-                <div id="add-edit-form-container" class="max-w-xl mx-auto p-8 rounded-xl shadow-lg mb-8 bg-white ${isAdmin ? '' : 'hidden'}">
-                    <h2 id="add-edit-form-title" class="text-2xl font-bold text-indigo-700 mb-6">
-                        Add New Book
-                    </h2>
+            if (!email || !password) {
+                showCustomModal("Email and password cannot be empty.");
+                return;
+            }
 
-                    <div id="isbn-search-section" class="mb-6 border-b border-gray-200 pb-4">
-                        <h3 class="text-xl font-semibold text-gray-700 mb-3">Add by ISBN</h3>
-                        <div class="flex space-x-2">
-                            <input type="text" id="isbn-search-input" placeholder="Enter ISBN" class="flex-grow px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"/>
-                            <button type="button" id="fetch-isbn-button" class="px-5 py-2 bg-purple-600 text-white font-medium rounded-lg shadow hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition duration-150 ease-in-out">
-                                Fetch Details
+            if (!supabase) {
+                showCustomModal("Supabase client not initialized. Please try again.");
+                return;
+            }
+
+            try {
+                let response;
+                if (isSignUp) {
+                    response = await supabase.auth.signUp({ email, password });
+                    if (response.data.user) {
+                        showCustomModal("Sign up successful! Please check your email to confirm your account.");
+                    } else if (response.error) {
+                        throw response.error;
+                    }
+                } else {
+                    response = await supabase.auth.signInWithPassword({ email, password });
+                    if (response.error) {
+                        throw response.error;
+                    }
+                }
+                // Auth state change listener will handle view rendering
+            } catch (error) {
+                console.error("Auth error:", error);
+                showCustomModal(`Authentication failed: ${error.message}`);
+            }
+        }
+
+        async function handleLogout() {
+            if (!supabase) return;
+            try {
+                const { error } = await supabase.auth.signOut();
+                if (error) throw error;
+                showCustomModal("You have been logged out.");
+                // Auth state change listener will handle view rendering
+            } catch (error) {
+                console.error("Logout error:", error);
+                showCustomModal(`Logout failed: ${error.message}`);
+            }
+        }
+
+
+        // --- View Rendering Logic ---
+        function renderView(viewName) {
+            let htmlContent = '';
+            const isDarkMode = document.body.classList.contains('dark-mode');
+
+            if (viewName === 'auth') {
+                htmlContent = `
+                    <div class="flex items-center justify-center min-h-screen">
+                        <div class="max-w-md w-full bg-white p-8 rounded-xl shadow-lg ${isDarkMode ? 'dark-mode' : ''}">
+                            <h2 class="text-3xl font-bold text-center text-indigo-700 mb-6 ${isDarkMode ? 'dark-mode' : ''}">
+                                Welcome to Family Library
+                            </h2>
+                            <form id="auth-form" class="space-y-4">
+                                <div>
+                                    <label for="auth-email" class="block text-sm font-medium text-gray-700 mb-1 ${isDarkMode ? 'dark-mode' : ''}">
+                                        Email
+                                    </label>
+                                    <input type="email" id="auth-email" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${isDarkMode ? 'dark-mode' : ''}" placeholder="your.email@example.com" required/>
+                                </div>
+                                <div>
+                                    <label for="auth-password" class="block text-sm font-medium text-gray-700 mb-1 ${isDarkMode ? 'dark-mode' : ''}">
+                                        Password
+                                    </label>
+                                    <input type="password" id="auth-password" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${isDarkMode ? 'dark-mode' : ''}" placeholder="••••••••" required/>
+                                </div>
+                                <div class="flex flex-col space-y-3">
+                                    <button type="submit" id="login-button" class="px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out w-full">
+                                        Login
+                                    </button>
+                                    <button type="button" id="signup-button" class="px-6 py-3 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 w-full ${isDarkMode ? 'dark-mode' : ''}">
+                                        Sign Up
+                                    </button>
+                                </div>
+                            </form>
+                            <button id="theme-toggle" class="mt-8 px-4 py-2 rounded-lg font-medium shadow transition duration-150 ease-in-out bg-gray-200 text-gray-800 hover:bg-gray-300 w-full">
+                                ${isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
                             </button>
                         </div>
-                        <p class="text-center text-sm my-4 text-gray-500">
-                            — OR —
+                    </div>
+                `;
+                appDiv.innerHTML = htmlContent;
+                document.getElementById('auth-form').addEventListener('submit', (e) => handleAuth(e, false));
+                document.getElementById('signup-button').addEventListener('click', (e) => handleAuth(e, true));
+                document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+
+            } else if (viewName === 'main') {
+                htmlContent = `
+                    <header class="text-center mb-8">
+                        <h1 class="text-4xl font-extrabold mb-2 text-indigo-800">
+                            Family Library
+                        </h1>
+                        <p class="text-lg text-gray-600">
+                            Your personal book tracker for the whole family.
                         </p>
+                        <p class="text-sm mt-2 text-gray-500" id="user-info">
+                            Logged in as: <span class="font-semibold">${userEmail || userId || 'Anonymous'}</span>
+                            ${isAdmin ? `<span class="ml-2 px-2 py-1 bg-yellow-400 text-yellow-900 rounded-full text-xs font-bold">ADMIN</span>` : ''}
+                            <button id="logout-button" class="ml-4 px-3 py-1 bg-red-500 text-white text-xs rounded-lg shadow hover:bg-red-600 transition duration-150 ease-in-out">
+                                Logout
+                            </button>
+                        </p>
+                        <button id="theme-toggle" class="mt-4 px-4 py-2 rounded-lg font-medium shadow transition duration-150 ease-in-out bg-gray-200 text-gray-800 hover:bg-gray-300">
+                            ${isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                        </button>
+                    </header>
+
+                    <!-- Add/Edit Book Form -->
+                    <div id="add-edit-form-container" class="max-w-xl mx-auto p-8 rounded-xl shadow-lg mb-8 bg-white ${isAdmin ? '' : 'hidden'}">
+                        <h2 id="add-edit-form-title" class="text-2xl font-bold text-indigo-700 mb-6">
+                            Add New Book
+                        </h2>
+
+                        <div id="isbn-search-section" class="mb-6 border-b border-gray-200 pb-4">
+                            <h3 class="text-xl font-semibold text-gray-700 mb-3">Add by ISBN</h3>
+                            <div class="flex space-x-2">
+                                <input type="text" id="isbn-search-input" placeholder="Enter ISBN" class="flex-grow px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"/>
+                                <button type="button" id="fetch-isbn-button" class="px-5 py-2 bg-purple-600 text-white font-medium rounded-lg shadow hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition duration-150 ease-in-out">
+                                    Fetch Details
+                                </button>
+                            </div>
+                            <p class="text-center text-sm my-4 text-gray-500">
+                                — OR —
+                            </p>
+                        </div>
+
+                        <form id="add-edit-book-form" class="space-y-4">
+                            <div>
+                                <label for="book-title" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Title
+                                </label>
+                                <input type="text" id="book-title" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="e.g., The Hobbit" required/>
+                            </div>
+                            <div>
+                                <label for="book-author" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Author
+                                </label>
+                                <input type="text" id="book-author" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="e.g., J.R.R. Tolkien" required/>
+                            </div>
+                            <div>
+                                <label for="book-isbn" class="block text-sm font-medium text-gray-700 mb-1">
+                                    ISBN (Optional)
+                                </label>
+                                <input type="text" id="book-isbn" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="e.g., 978-0-618-00221-4"/>
+                            </div>
+                            <div class="flex justify-end space-x-3">
+                                <button type="button" id="cancel-edit-button" class="px-5 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 hidden">
+                                    Cancel
+                                </button>
+                                <button type="submit" id="add-update-button" class="px-6 py-2 bg-indigo-600 text-white font-medium rounded-lg shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                                    Add Book
+                                </button>
+                            </div>
+                        </form>
                     </div>
 
-                    <form id="add-edit-book-form" class="space-y-4">
-                        <div>
-                            <label for="book-title" class="block text-sm font-medium text-gray-700 mb-1">
-                                Title
-                            </label>
-                            <input type="text" id="book-title" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="e.g., The Hobbit" required/>
-                        </div>
-                        <div>
-                            <label for="book-author" class="block text-sm font-medium text-gray-700 mb-1">
-                                Author
-                            </label>
-                            <input type="text" id="book-author" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="e.g., J.R.R. Tolkien" required/>
-                        </div>
-                        <div>
-                            <label for="book-isbn" class="block text-sm font-medium text-gray-700 mb-1">
-                                ISBN (Optional)
-                            </label>
-                            <input type="text" id="book-isbn" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="e.g., 978-0-618-00221-4"/>
-                        </div>
-                        <div class="flex justify-end space-x-3">
-                            <button type="button" id="cancel-edit-button" class="px-5 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 hidden">
-                                Cancel
-                            </button>
-                            <button type="submit" id="add-update-button" class="px-6 py-2 bg-indigo-600 text-white font-medium rounded-lg shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
-                                Add Book
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                    <!-- Search Bar -->
+                    <div class="max-w-xl mx-auto bg-white p-6 rounded-xl shadow-lg mb-8">
+                        <h2 class="text-2xl font-bold text-indigo-700 mb-4">Search Books</h2>
+                        <input type="text" id="search-input" placeholder="Search by title, author, or ISBN..." class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"/>
+                    </div>
 
-                <div class="max-w-xl mx-auto bg-white p-6 rounded-xl shadow-lg mb-8">
-                    <h2 class="text-2xl font-bold text-indigo-700 mb-4">Search Books</h2>
-                    <input type="text" id="search-input" placeholder="Search by title, author, or ISBN..." class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"/>
-                </div>
-
-                <div class="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-lg">
-                    <h2 class="text-2xl font-bold text-indigo-700 mb-6">Your Books</h2>
-                    <ul id="book-list" class="space-y-4">
+                    <!-- Book List -->
+                    <div class="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-lg">
+                        <h2 class="text-2xl font-bold text-indigo-700 mb-6">Your Books</h2>
+                        <ul id="book-list" class="space-y-4">
+                            <!-- Books will be rendered here -->
                         </ul>
-                </div>
-            `;
+                    </div>
+                `;
+                appDiv.innerHTML = htmlContent;
+                document.getElementById('add-edit-book-form').addEventListener('submit', handleAddUpdateBook);
+                document.getElementById('fetch-isbn-button').addEventListener('click', fetchBookDetailsByIsbn);
+                document.getElementById('cancel-edit-button').addEventListener('click', handleCancelEdit);
+                document.getElementById('search-input').addEventListener('input', renderBookList);
+                document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+                document.getElementById('logout-button').addEventListener('click', handleLogout);
 
-            // Attach event listeners after rendering HTML
-            document.getElementById('add-edit-book-form').addEventListener('submit', handleAddUpdateBook);
-            document.getElementById('fetch-isbn-button').addEventListener('click', fetchBookDetailsByIsbn);
-            document.getElementById('cancel-edit-button').addEventListener('click', handleCancelEdit);
-            document.getElementById('search-input').addEventListener('input', renderBookList);
-            document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
-
-            // Update theme on initial load
+                renderBookList(); // Initial render of books for the main view
+            }
             applyTheme(localStorage.getItem('theme') || 'light');
-
-            // Render books initially (will be updated by realtime listener)
-            renderBookList();
             updateUserInfoDisplay();
         }
 
@@ -677,9 +773,19 @@
                 userInfoSpan.innerHTML = `
                     Logged in as: <span class="font-semibold">${userEmail || userId || 'Anonymous'}</span>
                     ${isAdmin ? `<span class="ml-2 px-2 py-1 bg-yellow-400 text-yellow-900 rounded-full text-xs font-bold">ADMIN</span>` : ''}
+                    ${userId ? `
+                    <button id="logout-button" class="ml-4 px-3 py-1 bg-red-500 text-white text-xs rounded-lg shadow hover:bg-red-600 transition duration-150 ease-in-out">
+                        Logout
+                    </button>
+                    ` : ''}
                 `;
+                // Re-attach logout listener if it's rendered dynamically
+                const logoutButton = document.getElementById('logout-button');
+                if (logoutButton) {
+                    logoutButton.onclick = handleLogout;
+                }
             }
-            // Toggle admin form visibility
+
             const addEditFormContainer = document.getElementById('add-edit-form-container');
             if (addEditFormContainer) {
                 if (isAdmin) {
@@ -694,7 +800,12 @@
         // --- Render Book List ---
         function renderBookList() {
             const bookListElement = document.getElementById('book-list');
-            const searchQuery = document.getElementById('search-input').value.toLowerCase();
+            // Check if bookListElement exists before proceeding (it won't on the auth page)
+            if (!bookListElement) return;
+
+            const searchInput = document.getElementById('search-input');
+            const searchQuery = searchInput ? searchInput.value.toLowerCase() : '';
+
             let filteredBooks = books.filter(book =>
                 book.title.toLowerCase().includes(searchQuery) ||
                 book.author.toLowerCase().includes(searchQuery) ||
@@ -744,7 +855,6 @@
                 </li>
             `).join('');
 
-            // Update theme on dynamically added elements
             applyTheme(localStorage.getItem('theme') || 'light');
         }
 
@@ -758,45 +868,48 @@
 
         function applyTheme(theme) {
             const body = document.body;
+            const modalContent = modal.querySelector('.modal-content');
+            const authFormElements = document.querySelectorAll('#auth-form input, #auth-form label, #auth-form button.secondary');
+            const mainContentElements = document.querySelectorAll('#app input, #app label, #app button.secondary, #app h2, #app h3, #app p.text-gray-700, #app p.text-gray-600, #app li.bg-gray-50, #app li.border-gray-200');
+
+
             if (theme === 'dark') {
                 body.classList.remove('light-mode');
                 body.classList.add('dark-mode');
-                document.getElementById('theme-toggle').textContent = 'Switch to Light Mode';
+                const themeToggleButton = document.getElementById('theme-toggle');
+                if(themeToggleButton) themeToggleButton.textContent = 'Switch to Light Mode';
+
+                if (modalContent) modalContent.classList.add('dark-mode');
+                document.querySelectorAll('.modal-buttons input').forEach(el => el.classList.add('dark-mode'));
+
+                authFormElements.forEach(el => el.classList.add('dark-mode'));
+                mainContentElements.forEach(el => el.classList.add('dark-mode'));
+
+
             } else {
                 body.classList.remove('dark-mode');
                 body.classList.add('light-mode');
-                document.getElementById('theme-toggle').textContent = 'Switch to Dark Mode';
-            }
+                const themeToggleButton = document.getElementById('theme-toggle');
+                if(themeToggleButton) themeToggleButton.textContent = 'Switch to Dark Mode';
 
-            // Re-apply theme to modal and inputs that are dynamically rendered or change
-            const modalContent = modal.querySelector('.modal-content');
-            if (modalContent) {
-                if (theme === 'dark') {
-                    modalContent.classList.add('dark-mode');
-                } else {
-                    modalContent.classList.remove('dark-mode');
-                }
-            }
-            const modalPromptInput = modal.querySelector('#modal-prompt-input');
-            if (modalPromptInput) {
-                if (theme === 'dark') {
-                    modalPromptInput.classList.add('dark-mode');
-                } else {
-                    modalPromptInput.classList.remove('dark-mode');
-                }
-            }
+                if (modalContent) modalContent.classList.remove('dark-mode');
+                document.querySelectorAll('.modal-buttons input').forEach(el => el.classList.remove('dark-mode'));
 
-            // Re-render book list to update colors of dynamically added book elements
-            renderBookList();
+                authFormElements.forEach(el => el.classList.remove('dark-mode'));
+                mainContentElements.forEach(el => el.classList.remove('dark-mode'));
+            }
         }
+
 
         // Expose functions to global scope for HTML event listeners
         window.handleBorrowReturn = handleBorrowReturn;
         window.handleEditClick = handleEditClick;
         window.handleDeleteBook = handleDeleteBook;
-        window.toggleTheme = toggleTheme; // Expose toggleTheme to the button
-        window.applyTheme = applyTheme; // To initialize theme on load
-        window.showCustomModal = showCustomModal; // Expose modal for debugging if needed
+        window.toggleTheme = toggleTheme;
+        window.applyTheme = applyTheme;
+        window.showCustomModal = showCustomModal;
+        window.handleAuth = handleAuth; // Expose for auth form
+        window.handleLogout = handleLogout; // Expose for logout button
 
         // Initialize the app when the window loads
         window.onload = initializeSupabase;
