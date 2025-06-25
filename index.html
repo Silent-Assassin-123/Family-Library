@@ -4,1045 +4,1011 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Family Library</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* General Body and Container Styling */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #1a1a2e; /* Dark background */
-            color: #e0e0e0; /* Light text */
-            transition: background-color 0.3s, color 0.3s;
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            background-size: 400% 400%; /* For animated gradient */
+            animation: gradientBackground 15s ease infinite;
         }
 
-        .dark-theme {
-            background-color: #1a1a2e;
-            color: #e0e0e0;
+        /* Animated Gradient Background */
+        @keyframes gradientBackground {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
-        .light-theme {
-            background-color: #f0f2f5;
-            color: #333;
+        /* Light mode defaults (now purple-tinted) */
+        .light-mode {
+            background-image: linear-gradient(225deg, #e1bee7, #ce93d8, #e0b0e9, #f3e5f5); /* Lighter purples */
+            color: #1A1A1D; /* Near black text */
         }
-
-        .container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 2rem;
-            background-color: #16213e; /* Darker container */
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-            transition: background-color 0.3s, box-shadow 0.3s;
-        }
-
-        .light-theme .container {
+        .light-mode .bg-white {
             background-color: #ffffff;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 5px 15px -5px rgba(0, 0, 0, 0.04); /* Deeper shadow */
+            border: 1px solid rgba(229, 231, 235, 0.7); /* Lighter border */
+        }
+        .light-mode .text-gray-600 { color: #4A148C; } /* Purple for main text */
+        .light-mode .text-gray-500 { color: #6A1B9A; } /* Medium purple for hints */
+        .light-mode .text-gray-900 { color: #1A1A1D; } /* Primary text color (near black) */
+        .light-mode .text-gray-700 { color: #3E2723; } /* Darker text for labels etc. (warm hint) */
+        .light-mode .border-gray-200 { border-color: #E1BEE7; } /* Light purple border */
+        .light-mode .bg-gray-50 {
+            background-color: #F3E5F5; /* Very light purple/pinkish */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); /* Subtle shadow for list items */
+        }
+        .light-mode .hover\:bg-gray-100:hover { background-color: #EDE7F6; } /* Slightly darker light purple */
+        .light-mode .border-gray-300 { border-color: #CE93D8; } /* Medium purple border */
+        .light-mode input, .light-mode select { background-color: #ffffff; color: #1A1A1D; border-color: #CE93D8; }
+
+
+        /* Dark mode styles (black and purple dominant) */
+        .dark-mode {
+            background-image: linear-gradient(225deg, #1A1A1D, #212121, #2C2C30, #3E2723); /* Black/dark grey with slight warm hint */
+            color: #E1BEE7; /* Light purple text */
+        }
+        .dark-mode .bg-white {
+            background-color: #2C2C30; /* Dark grey for cards */
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 5px 15px -5px rgba(0, 0, 0, 0.1); /* Deeper shadow for dark mode */
+            border: 1px solid #4A148C; /* Deep purple border */
+        }
+        .dark-mode .text-gray-600 { color: #CE93D8; } /* Medium-light purple */
+        .dark-mode .text-gray-500 { color: #E1BEE7; } /* Light purple for hints */
+        .dark-mode .text-gray-900 { color: #E1BEE7; } /* Primary text color (light purple) */
+        .dark-mode .text-gray-700 { color: #D7CCC8; } /* Lighter grey for labels (warm hint) */
+        .dark-mode .border-gray-200 { border-color: #4A148C; } /* Deep purple border */
+        .dark-mode .bg-gray-50 {
+            background-color: #3E2723; /* Darker brown-grey for list items */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.08);
+        }
+        .dark-mode .hover\:bg-gray-100:hover { background-color: #4A302A; } /* Slightly darker brown-grey */
+        .dark-mode .border-gray-300 { border-color: #6A1B9A; } /* Medium purple border */
+        .dark-mode input, .dark-mode select { background-color: #4A148C; color: #E1BEE7; border-color: #6A1B9A; }
+        .dark-mode input.focus\:border-indigo-500:focus,
+        .dark-mode input.focus\:ring-indigo-500:focus {
+            border-color: #9C27B0 !important;
+            box-shadow: 0 0 0 3px rgba(156, 39, 176, 0.4) !important;
         }
 
-        /* Header and Auth Forms */
-        h1, h2 {
-            color: #e94560; /* Accent color */
-            margin-bottom: 1.5rem;
-            text-align: center;
+        /* Enhanced Button Styling */
+        .btn-primary {
+            background: linear-gradient(to right, #6A1B9A, #9C27B0); /* Medium to vibrant purple */
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(106, 27, 154, 0.4);
+        }
+        .btn-primary:hover {
+            background: linear-gradient(to right, #4A148C, #6A1B9A); /* Deeper purple on hover */
+            box-shadow: 0 6px 15px rgba(106, 27, 154, 0.5);
+            transform: translateY(-1px);
         }
 
-        .light-theme h1, .light-theme h2 {
-            color: #c9002a;
-        }
-
-        form {
-            background-color: #0f3460; /* Form background */
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin-bottom: 2rem;
-            transition: background-color 0.3s;
-        }
-
-        .light-theme form {
-            background-color: #f9f9f9;
-        }
-
-        input[type="email"],
-        input[type="password"],
-        input[type="text"],
-        input[type="number"],
-        textarea {
-            width: 100%;
-            padding: 0.8rem;
-            margin-bottom: 1rem;
-            border: 1px solid #000000; /* Darker border for inputs */
-            border-radius: 6px;
-            background-color: #0f3460;
-            color: #e0e0e0;
-            transition: border-color 0.3s, background-color 0.3s;
-        }
-
-        .light-theme input[type="email"],
-        .light-theme input[type="password"],
-        .light-theme input[type="text"],
-        .light-theme input[type="number"],
-        .light-theme textarea {
+        .btn-secondary {
             background-color: #ffffff;
-            border-color: #ccc;
-            color: #333;
+            color: #4A148C; /* Deep purple text */
+            border: 1px solid #9C27B0; /* Vibrant purple border */
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        .btn-secondary:hover {
+            background-color: #F3E5F5; /* Light purple hover */
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .dark-mode .btn-secondary {
+            background-color: #1A1A1D; /* Near black */
+            color: #E1BEE7; /* Light purple text */
+            border-color: #4A148C; /* Deep purple border */
+        }
+        .dark-mode .btn-secondary:hover {
+            background-color: #2C2C30; /* Dark grey hover */
         }
 
-        input[type="email"]:focus,
-        input[type="password"]:focus,
-        input[type="text"]:focus,
-        input[type="number"]:focus,
-        textarea:focus {
+
+        .btn-green { /* Used for 'Available' books, now a vibrant green for contrast */
+            background: linear-gradient(to right, #50C878, #36B368);
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(52, 211, 153, 0.3);
+        }
+        .btn-green:hover {
+            background: linear-gradient(to right, #36B368, #239A5D);
+            box-shadow: 0 6px 15px rgba(52, 211, 153, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .btn-yellow { /* Used for 'Borrowed' books, now a prominent red hint */
+            background: linear-gradient(to right, #D32F2F, #B71C1C); /* Darker Red */
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(211, 47, 47, 0.4);
+        }
+        .btn-yellow:hover {
+            background: linear-gradient(to right, #B71C1C, #8F0000);
+            box-shadow: 0 6px 15px rgba(211, 47, 47, 0.5);
+            transform: translateY(-1px);
+        }
+
+        .btn-red { /* Used for Logout/Delete - kept as strong red */
+            background: linear-gradient(to right, #ef4444, #dc2626);
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
+        }
+        .btn-red:hover {
+            background: linear-gradient(to right, #dc2626, #b91c1c);
+            box-shadow: 0 6px 15px rgba(239, 68, 68, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .btn-blue { /* Used for Edit button, now a blue-purple */
+            background: linear-gradient(to right, #673AB7, #5E35B1); /* Deep Purple-Blue */
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(103, 58, 183, 0.3);
+        }
+        .btn-blue:hover {
+            background: linear-gradient(to right, #5E35B1, #4527A0);
+            box-shadow: 0 6px 15px rgba(103, 58, 183, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .btn-purple { /* Used for Fetch Details, now a distinct purple */
+            background: linear-gradient(to right, #8E24AA, #7B1FA2); /* Vibrant Purple */
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(142, 36, 170, 0.3);
+        }
+        .btn-purple:hover {
+            background: linear-gradient(to right, #7B1FA2, #6A1B9A);
+            box-shadow: 0 6px 15px rgba(142, 36, 170, 0.4);
+            transform: translateY(-1px);
+        }
+
+        /* Enhanced list item hover effect */
+        .book-list-item {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .book-list-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px -5px rgba(0, 0, 0, 0.15), 0 4px 10px -5px rgba(0, 0, 0, 0.08);
+        }
+        .dark-mode .book-list-item:hover {
+            box-shadow: 0 8px 20px -5px rgba(0, 0, 0, 0.3), 0 4px 10px -5px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Adjust input focus styles for better contrast */
+        input:focus {
             outline: none;
-            border-color: #533483; /* Purple accent on focus */
-            box-shadow: 0 0 0 3px rgba(83, 52, 131, 0.5);
+            border-color: #9C27B0 !important; /* Vibrant purple */
+            box-shadow: 0 0 0 3px rgba(156, 39, 176, 0.4) !important; /* Vibrant purple with opacity */
+        }
+        .dark-mode input:focus {
+            border-color: #E1BEE7 !important; /* Light purple */
+            box-shadow: 0 0 0 3px rgba(225, 190, 231, 0.4) !important; /* Light purple with opacity */
         }
 
-        button {
-            background-color: #533483; /* Purple button */
-            color: white;
-            padding: 0.8rem 1.5rem;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s;
-            font-weight: 600;
-        }
+        /* Ensure heading colors are affected by theme */
+        .text-header-light { color: #4A148C; /* Deep purple */ }
+        .text-header-dark { color: #E1BEE7; /* Light purple */ }
 
-        button:hover {
-            background-color: #6a4a9f; /* Lighter purple on hover */
-            transform: translateY(-2px);
-        }
+        .text-sub-header-light { color: #6A1B9A; /* Medium purple */ }
+        .text-sub-header-dark { color: #CE93D8; /* Medium-light purple */ }
 
-        .light-theme button {
-            background-color: #7a5cd6;
-        }
-        .light-theme button:hover {
-            background-color: #9078e6;
-        }
-
-        /* Error/Success Messages */
-        .message {
-            padding: 0.8rem;
-            margin-bottom: 1rem;
-            border-radius: 6px;
-            text-align: center;
-        }
-
-        .message.error {
-            background-color: #e94560; /* Red for error */
-            color: white;
-        }
-
-        .message.success {
-            background-color: #4CAF50; /* Green for success */
-            color: white;
-        }
-
-        /* Book List */
-        .book-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .book-item {
-            background-color: #0f3460;
-            padding: 1rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: background-color 0.3s, transform 0.2s;
-            min-height: 200px; /* Ensure consistent height */
-        }
-
-        .light-theme .book-item {
-            background-color: #ffffff;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-        }
-
-        .book-item:hover {
-            transform: translateY(-5px);
-        }
-
-        .book-item h3 {
-            color: #e94560;
-            font-size: 1.3rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .book-item p {
-            font-size: 0.9rem;
-            line-height: 1.4;
-            color: #b0b0b0;
-        }
-
-        .light-theme .book-item p {
-            color: #555;
-        }
-
-        .book-item .actions {
-            margin-top: 1rem;
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-
-        .book-item .actions button {
-            padding: 0.5rem 1rem;
-            font-size: 0.85rem;
-            flex-grow: 1;
-        }
-
-        /* Loader */
-        .loader {
-            border: 8px solid #f3f3f3;
-            border-top: 8px solid #533483;
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #6A1B9A; /* Purple */
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
+            width: 40px;
+            height: 40px;
             animation: spin 1s linear infinite;
-            margin: 50px auto;
         }
-
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
-        /* Hidden class for elements */
-        .hidden {
-            display: none !important;
-        }
-
-        /* Main app view grid for better layout */
-        .app-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 2rem;
-        }
-
-        @media (min-width: 768px) {
-            .app-grid {
-                grid-template-columns: 1fr; /* Adjust as needed for larger screens */
-            }
-        }
-
-        /* User Management */
-        .user-item {
-            background-color: #0f3460;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 0.8rem;
+        /* Style for the loading container */
+        .loading-container {
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
-        }
-        .light-theme .user-item {
-            background-color: #f9f9f9;
-        }
-        .user-item span {
-            font-weight: 600;
-            color: #e0e0e0;
-        }
-        .light-theme .user-item span {
-            color: #333;
-        }
-        .user-item .actions button {
-            padding: 0.5rem 0.8rem;
-            font-size: 0.8rem;
-        }
-
-        /* Profile Section */
-        #profile-section form {
-            max-width: 500px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        #profile-section p {
-            text-align: center;
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
-            font-weight: 500;
-        }
-
-        /* Tab Navigation */
-        .tab-nav {
-            display: flex;
             justify-content: center;
-            margin-bottom: 2rem;
-            background-color: #0a1128; /* Slightly lighter background for tabs */
-            border-radius: 8px;
-            padding: 0.5rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            min-height: 100vh; /* Ensure it takes full viewport height */
+            text-align: center;
+            color: #4A148C; /* Deep purple text */
+            background-image: linear-gradient(225deg, #e1bee7, #ce93d8, #e0b0e9, #f3e5f5); /* Light mode gradient */
+            background-size: 400% 400%;
+            animation: gradientBackground 15s ease infinite;
         }
-        .light-theme .tab-nav {
-            background-color: #e0e6ec;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-        }
-
-        .tab-nav button {
-            flex-grow: 1;
-            padding: 1rem 1.5rem;
-            border: none;
-            background-color: transparent;
-            color: #a0a0a0;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            border-radius: 6px;
-            transition: color 0.3s, background-color 0.3s, transform 0.2s;
-            max-width: 200px; /* Limit tab width */
-        }
-
-        .tab-nav button:hover:not(.active) {
-            color: #e0e0e0;
-            background-color: #1a1a2e;
-            transform: translateY(-2px);
-        }
-        .light-theme .tab-nav button:hover:not(.active) {
-            color: #333;
-            background-color: #f0f2f5;
-        }
-
-        .tab-nav button.active {
-            background-color: #533483; /* Active tab color */
-            color: white;
-            box-shadow: 0 2px 10px rgba(83, 52, 131, 0.5);
-            transform: translateY(-2px);
-        }
-        .light-theme .tab-nav button.active {
-            background-color: #7a5cd6;
-            box-shadow: 0 2px 10px rgba(122, 92, 214, 0.3);
-        }
-
-        /* Section specific margins */
-        .tab-content-section {
-            padding-top: 1rem;
+        .dark-mode .loading-container {
+            color: #E1BEE7; /* Light purple text in dark mode */
+            background-image: linear-gradient(225deg, #1A1A1D, #212121, #2C2C30, #3E2723); /* Dark mode gradient */
         }
     </style>
 </head>
-<body class="dark-theme">
-    <div class="container">
-        <div id="auth-view" class="hidden">
-            <h1 class="text-3xl font-bold mb-6">Welcome to Family Library</h1>
-            <div id="auth-message" class="message hidden"></div>
-
-            <form id="signup-form" class="mb-4">
-                <h2 class="text-2xl font-semibold mb-4">Sign Up</h2>
-                <input type="email" id="signup-email" placeholder="Email" required class="w-full p-3 rounded-md border border-gray-700 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-purple-600 mb-2">
-                <input type="password" id="signup-password" placeholder="Password" required class="w-full p-3 rounded-md border border-gray-700 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-purple-600 mb-4">
-                <button type="submit" class="w-full py-3 bg-purple-700 hover:bg-purple-800 text-white font-bold rounded-md transition duration-200">Sign Up</button>
-            </form>
-
-            <form id="signin-form">
-                <h2 class="text-2xl font-semibold mb-4">Sign In</h2>
-                <input type="email" id="signin-email" placeholder="Email" required class="w-full p-3 rounded-md border border-gray-700 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-purple-600 mb-2">
-                <input type="password" id="signin-password" placeholder="Password" required class="w-full p-3 rounded-md border border-gray-700 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-purple-600 mb-4">
-                <button type="submit" class="w-full py-3 bg-purple-700 hover:bg-purple-800 text-white font-bold rounded-md transition duration-200">Sign In</button>
-            </form>
-        </div>
-
-        <div id="main-view" class="hidden app-grid">
-            <div class="flex justify-between items-center mb-4">
-                <h1 class="text-3xl font-bold flex-grow text-left" id="display-name-header">Welcome!</h1>
-                <div class="flex items-center space-x-4">
-                    <button id="theme-toggle" class="bg-gray-700 hover:bg-gray-600 text-white text-sm px-4 py-2 rounded-md">Toggle Theme</button>
-                    <button id="signout-button" class="bg-red-700 hover:bg-red-800 text-white text-sm px-4 py-2 rounded-md">Sign Out</button>
-                </div>
-            </div>
-
-            <div class="tab-nav" id="main-tab-nav">
-                <button id="tab-my-books" data-tab="books-section" class="active">My Books</button>
-                <button id="tab-add-book" data-tab="add-book-section" class="hidden">Add Book</button>
-                <button id="tab-my-profile" data-tab="profile-section">My Profile</button>
-                <button id="tab-users" data-tab="users-section" class="hidden">User Management</button>
-            </div>
-
-            <div id="books-section" class="tab-content-section">
-                <h2 class="text-2xl font-semibold mb-4 text-center">My Books</h2>
-                <input type="text" id="search-input" placeholder="Search books by title or author..." class="w-full p-3 rounded-md border border-gray-700 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-purple-600 mb-4">
-                <div id="book-list" class="book-list">
-                    </div>
-                <div id="no-books-message" class="text-center text-gray-500 mt-8 hidden">No books found.</div>
-            </div>
-
-            <div id="add-book-section" class="tab-content-section hidden">
-                <h2 class="text-2xl font-semibold mb-4 text-center">Add/Edit Book</h2>
-                <div id="add-book-message" class="message hidden"></div>
-                <form id="add-book-form">
-                    <input type="hidden" id="book-id">
-                    <input type="text" id="book-title" placeholder="Title" required>
-                    <input type="text" id="book-author" placeholder="Author" required>
-                    <input type="text" id="book-isbn" placeholder="ISBN (optional)">
-                    <textarea id="book-description" placeholder="Description (optional)" rows="3"></textarea>
-                    <button type="submit" id="add-book-submit-btn">Add Book</button>
-                    <button type="button" id="cancel-edit-btn" class="hidden bg-gray-600 hover:bg-gray-700 ml-2">Cancel Edit</button>
-                </form>
-            </div>
-
-            <div id="profile-section" class="tab-content-section hidden">
-                <h2 class="text-2xl font-semibold mb-4 text-center">My Profile</h2>
-                <p id="current-display-name">Current Display Name: Loading...</p>
-                <form id="display-name-form">
-                    <input type="text" id="new-display-name" placeholder="Enter your display name" required>
-                    <button type="submit">Set Display Name</button>
-                </form>
-                <div id="profile-message" class="message hidden"></div>
-            </div>
-
-            <div id="users-section" class="tab-content-section hidden">
-                <h2 class="text-2xl font-semibold mb-4 text-center">User Management</h2>
-                <div id="user-list">
-                    </div>
-                <div id="user-message" class="message hidden"></div>
-            </div>
-
-        </div>
-
-        <div id="loader-view" class="flex justify-center items-center h-screen hidden">
-            <div class="loader"></div>
+<body class="light-mode">
+    <div id="app" class="min-h-screen p-4">
+        <div id="initial-loading-screen" class="loading-container">
+            <div class="spinner mb-4"></div>
+            <p id="loading-message" class="text-xl animate-pulse">Loading library...</p>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <script type="module">
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+        let createClient;
+        if (window.supabase) {
+            createClient = window.supabase.createClient;
+        } else {
+            console.error("Supabase SDK not loaded on window.supabase. Please check CDN script.");
+        }
 
-        // Initialize Supabase - REPLACE WITH YOUR ACTUAL KEYS
-        const SUPABASE_URL = 'https://nhoozjzvkydxwlrshqis.supabase.co'; // Replace with your Supabase URL
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ob296anp2a3lkeHdscnNocWlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA3NzMyNDEsImV4cCI6MjA2NjM0OTI0MX0.5PfsT7CBIBOIziR8k0FsMPZzW0z7EzVrzFaWvhOIK9M'; // Replace with your Supabase Anon Key
+        const SUPABASE_URL = 'https://nhoozjzvkydxwlrshqis.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ob296anp2a3lkeHdscnNocWlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA3NzMyNDEsImV4cCI6MjA2NjM0OTI0MX0.5PfsT7CBIBOIziR8k0FsMPZzW0z7EzVrzFaWvhOIK9M';
 
-        // --- DANGER: FOR DEBUGGING ONLY ---
-        // localStorage.clear(); // Uncomment this line if you need to clear local storage for testing purposes
-        // --- REMOVE IN PRODUCTION ---
-
-        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        // DOM Elements
-        const authView = document.getElementById('auth-view');
-        const mainView = document.getElementById('main-view');
-        const loaderView = document.getElementById('loader-view');
-
-        const authMessage = document.getElementById('auth-message');
-        const signupForm = document.getElementById('signup-form');
-        const signinForm = document.getElementById('signin-form');
-
-        const displayNameHeader = document.getElementById('display-name-header');
-        const themeToggle = document.getElementById('theme-toggle');
-        const signoutButton = document.getElementById('signout-button');
-
-        // Tab Navigation Elements
-        const mainTabNav = document.getElementById('main-tab-nav');
-        const tabMyBooks = document.getElementById('tab-my-books');
-        const tabAddBook = document.getElementById('tab-add-book');
-        const tabMyProfile = document.getElementById('tab-my-profile');
-        const tabUsers = document.getElementById('tab-users');
-
-        // Content Sections
-        const booksSection = document.getElementById('books-section');
-        const addBookSection = document.getElementById('add-book-section');
-        const profileSection = document.getElementById('profile-section');
-        const usersSection = document.getElementById('users-section');
-
-        // Book related elements
-        const bookListDiv = document.getElementById('book-list');
-        const noBooksMessage = document.getElementById('no-books-message');
-        const searchInput = document.getElementById('search-input');
-        const addBookForm = document.getElementById('add-book-form');
-        const bookIdInput = document.getElementById('book-id');
-        const bookTitleInput = document.getElementById('book-title');
-        const bookAuthorInput = document.getElementById('book-author');
-        const bookIsbnInput = document.getElementById('book-isbn');
-        const bookDescriptionInput = document.getElementById('book-description');
-        const addBookSubmitBtn = document.getElementById('add-book-submit-btn');
-        const cancelEditBtn = document.getElementById('cancel-edit-btn');
-        const addBookMessage = document.getElementById('add-book-message');
-
-        // Profile related elements
-        const displayNameForm = document.getElementById('display-name-form');
-        const newDisplayNameInput = document.getElementById('new-display-name');
-        const currentDisplayName = document.getElementById('current-display-name');
-        const profileMessage = document.getElementById('profile-message');
-
-        // User management elements
-        const userListDiv = document.getElementById('user-list');
-        const userMessage = document.getElementById('user-message');
-
-        let currentUser = null;
+        let supabase = null;
+        let userId = null;
+        let userEmail = null;
         let isAdmin = false;
-        let books = []; // Cache for books
+        let books = [];
+        let userProfiles = {}; // New: To store user_id -> display_name mapping
+        let editingBook = null;
 
-        // --- UI Utility Functions ---
+        const adminUids = [
+            'ca6c353e-d022-4bef-b567-e02ecdbc552d', // Replace with anirudhrajesh04@gmail.com's UID
+            '89c9470e-abfb-490e-9564-6d2c477d0c9e'  // Replace with anirudhrajesh999@gmail.com's UID
+        ];
 
-        function showMessage(element, msg, type) {
-            element.textContent = msg;
-            element.className = `message ${type}`;
-            element.classList.remove('hidden');
-            setTimeout(() => {
-                element.classList.add('hidden');
-            }, 5000);
-        }
+        const appDiv = document.getElementById('app');
+        const initialLoadingScreen = document.getElementById('initial-loading-screen');
+        const loadingMessage = document.getElementById('loading-message');
 
-        function showLoader() {
-            authView.classList.add('hidden');
-            mainView.classList.add('hidden');
-            loaderView.classList.remove('hidden');
-        }
 
-        function hideLoader() {
-            loaderView.classList.add('hidden');
-        }
+        // --- Supabase Initialization ---
+        async function initializeSupabase() {
+            console.log("Initializing Supabase...");
 
-        function renderView(view) {
-            hideLoader();
-            if (view === 'auth') {
-                authView.classList.remove('hidden');
-                mainView.classList.add('hidden');
-            } else if (view === 'main') {
-                authView.classList.add('hidden');
-                mainView.classList.remove('hidden');
-                updateDisplayNameHeader();
-                applyTheme(localStorage.getItem('theme') || 'dark-theme'); // Re-apply theme on view switch
-                updateTabVisibility(); // Show/hide admin tabs
-                switchTab('books-section'); // Default to My Books tab
+            // --- TEMPORARY DEBUGGING STEP: Clear localStorage on every load ---
+            // If this line fixes the "stuck on reload" issue, then local storage
+            // is definitively the cause. We will then remove this and implement
+            // a more targeted solution.
+            try {
+                localStorage.clear();
+                console.warn('[DEBUG] localStorage cleared on startup. REMOVE THIS IN PRODUCTION!');
+            } catch (e) {
+                console.error('[DEBUG] Failed to clear localStorage (might be empty or permissions issue):', e);
             }
-        }
+            // --- END TEMPORARY DEBUGGING STEP ---
 
-        function applyTheme(theme) {
-            document.body.className = theme;
-            localStorage.setItem('theme', theme);
-        }
-
-        // --- Tab Switching Logic ---
-        function switchTab(tabId) {
-            // Hide all content sections
-            booksSection.classList.add('hidden');
-            addBookSection.classList.add('hidden');
-            profileSection.classList.add('hidden');
-            usersSection.classList.add('hidden');
-
-            // Remove active class from all tab buttons
-            document.querySelectorAll('.tab-nav button').forEach(button => {
-                button.classList.remove('active');
-            });
-
-            // Show the selected section and activate its button
-            document.getElementById(tabId).classList.remove('hidden');
-            document.querySelector(`.tab-nav button[data-tab="${tabId}"]`).classList.add('active');
-
-            // Load content specific to the tab if needed
-            if (tabId === 'books-section') {
-                fetchBooks();
-            } else if (tabId === 'users-section') {
-                if (isAdmin) fetchUsers();
-            } else if (tabId === 'profile-section') {
-                updateCurrentDisplayName();
-            }
-            // Add book section doesn't need to fetch anything on display
-        }
-
-        function updateTabVisibility() {
-            if (isAdmin) {
-                tabAddBook.classList.remove('hidden');
-                tabUsers.classList.remove('hidden');
-            } else {
-                tabAddBook.classList.add('hidden');
-                tabUsers.classList.add('hidden');
-            }
-        }
-
-        // --- Authentication ---
-
-        async function handleAuthChange(event) {
-            const { session, error } = event.data.session ? event.data : { session: null, error: null }; // Handle initial load event structure
-            console.log('Auth state changed:', session, error);
-
-            if (error) {
-                console.error('Auth change error:', error.message);
-                showMessage(authMessage, error.message, 'error');
-                currentUser = null;
-                isAdmin = false;
-                renderView('auth');
-                return;
-            }
-
-            currentUser = session?.user || null;
-            if (currentUser) {
-                await checkUserAdminStatus(currentUser.id);
-                renderView('main');
-            } else {
-                isAdmin = false;
-                renderView('auth');
-            }
-        }
-
-        // Listen for auth state changes
-        supabase.auth.onAuthStateChange(handleAuthChange);
-
-        // Initial check on page load
-        async function initialAuthCheck() {
-            showLoader();
-            const { data: { session }, error } = await supabase.auth.getSession();
-            if (error) {
-                console.error('Initial session check error:', error.message);
-                showMessage(authMessage, error.message, 'error');
-                renderView('auth');
-                return;
-            }
-            handleAuthChange({ data: { session } });
-        }
-
-        // Sign Up
-        signupForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = e.target['signup-email'].value;
-            const password = e.target['signup-password'].value;
-            showLoader();
-            const { error } = await supabase.auth.signUp({ email, password });
-            hideLoader();
-            if (error) {
-                showMessage(authMessage, error.message, 'error');
-            } else {
-                showMessage(authMessage, 'Sign-up successful! Check your email for confirmation.', 'success');
-                signupForm.reset();
-            }
-        });
-
-        // Sign In
-        signinForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = e.target['signin-email'].value;
-            const password = e.target['signin-password'].value;
-            showLoader();
-            const { error } = await supabase.auth.signInWithPassword({ email, password });
-            hideLoader();
-            if (error) {
-                showMessage(authMessage, error.message, 'error');
-            } else {
-                // Auth state change listener handles rendering main view
-            }
-        });
-
-        // Sign Out
-        signoutButton.addEventListener('click', async () => {
-            showLoader();
-            const { error } = await supabase.auth.signOut();
-            hideLoader();
-            if (error) {
-                showMessage(authMessage, error.message, 'error');
-            } else {
-                currentUser = null;
-                isAdmin = false;
-                renderView('auth');
-                showMessage(authMessage, 'You have been signed out.', 'success');
-            }
-        });
-
-        // --- User Profile & Display Name ---
-
-        async function updateDisplayNameHeader() {
-            if (currentUser) {
-                const { data, error } = await supabase
-                    .from('profiles')
-                    .select('display_name')
-                    .eq('id', currentUser.id)
-                    .single();
-
-                if (error && error.code !== 'PGRST116') { // PGRST116 means no row found
-                    console.error('Error fetching display name:', error);
-                    displayNameHeader.textContent = `Welcome, ${currentUser.email}!`;
-                } else if (data?.display_name) {
-                    displayNameHeader.textContent = `Welcome, ${data.display_name}!`;
-                } else {
-                    displayNameHeader.textContent = `Welcome, ${currentUser.email || 'User'}!`;
+            try {
+                if (!createClient) {
+                    console.error("createClient is not available. Supabase SDK might not be loaded correctly.");
+                    loadingMessage.textContent = "Error: Supabase SDK failed to load.";
+                    alert("Error initializing Supabase. Check console for details.");
+                    // Keep loading screen visible if a critical error occurs
+                    initialLoadingScreen.style.display = 'flex';
+                    return;
                 }
-            } else {
-                displayNameHeader.textContent = `Welcome!`;
-            }
-        }
 
-        async function updateCurrentDisplayName() {
-            if (currentUser) {
-                const { data, error } = await supabase
-                    .from('profiles')
-                    .select('display_name')
-                    .eq('id', currentUser.id)
-                    .single();
+                supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                window.supabaseClient = supabase; // Expose for console debugging
+                console.log('Supabase client created and exposed as window.supabaseClient.');
 
-                if (error && error.code !== 'PGRST116') {
-                    console.error('Error fetching display name:', error);
-                    currentDisplayName.textContent = `Current Display Name: Error fetching`;
-                } else if (data?.display_name) {
-                    currentDisplayName.textContent = `Current Display Name: ${data.display_name}`;
-                    newDisplayNameInput.value = data.display_name; // Pre-fill input
-                } else {
-                    currentDisplayName.textContent = `Current Display Name: Not set`;
-                    newDisplayNameInput.value = ''; // Clear input
+
+                // Listen for auth state changes and render appropriate view
+                supabase.auth.onAuthStateChange(async (event, session) => {
+                    console.log("Auth state changed:", event, session ? session.user : 'No session');
+                    try {
+                        if (session && session.user) {
+                            userId = session.user.id;
+                            userEmail = session.user.email;
+                            isAdmin = adminUids.includes(userId);
+                            await fetchUserProfiles(); // Fetch profiles whenever auth state changes
+                            renderView('main'); // Show main app if logged in
+                            console.log(`User ${userEmail} (${userId}) is ${isAdmin ? 'an Admin' : 'a Member'}.`);
+                        } else {
+                            userId = null;
+                            userEmail = null;
+                            isAdmin = false;
+                            userProfiles = {}; // Clear profiles on logout
+                            renderView('auth'); // Show login page if not logged in
+                            console.log('User logged out or session invalid.');
+                        }
+                    } catch (innerError) {
+                        console.error("Error in onAuthStateChange callback:", innerError);
+                        loadingMessage.textContent = `Error: ${innerError.message}. Please refresh.`;
+                        initialLoadingScreen.style.display = 'flex'; // Keep loading screen visible with error
+                        alert(`A critical error occurred: ${innerError.message}. Please check console and refresh.`);
+                    } finally {
+                        // Ensure loading screen is hidden *after* the view is fully rendered or an error is displayed.
+                        // This might be redundant if renderView already hides it, but good for safety.
+                         if (initialLoadingScreen.style.display !== 'none') {
+                             setTimeout(() => {
+                                 initialLoadingScreen.style.display = 'none';
+                                 console.log('Loading screen hidden by final fallback.');
+                             }, 500); // Give a small delay to ensure content renders first
+                         }
+                    }
+                    updateUserInfoDisplay(); // Update user info display immediately
+                    setupRealtimeBooksListener(); // Re-setup listener on auth change
+                });
+
+                // Initial check for existing session
+                const { data: { user }, error: userError } = await supabase.auth.getUser();
+                if (userError) {
+                    console.warn("Initial getUser check returned an error:", userError.message);
+                    // This might be a transient network error or no session. Continue to auth view.
                 }
+
+                if (user) {
+                    console.log("Existing user session found on initial load:", user.id);
+                    userId = user.id;
+                    userEmail = user.email;
+                    isAdmin = adminUids.includes(userId);
+                    await fetchUserProfiles(); // Fetch profiles on initial load if user exists
+                    renderView('main');
+                } else {
+                    console.log("No existing user session on initial load. Showing auth view.");
+                    renderView('auth');
+                }
+
+            } catch (error) {
+                console.error("Error during Supabase initialization:", error);
+                loadingMessage.textContent = "Failed to load library: " + error.message;
+                alert(`Failed to initialize the application: ${error.message}. Please check console.`);
+                initialLoadingScreen.style.display = 'flex'; // Keep loading screen visible with error
             }
         }
 
-        displayNameForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if (!currentUser) {
-                showMessage(profileMessage, 'You must be logged in to set a display name.', 'error');
-                return;
-            }
-
-            const newName = newDisplayNameInput.value.trim();
-            if (!newName) {
-                showMessage(profileMessage, 'Display name cannot be empty.', 'error');
-                return;
-            }
-
-            const { error } = await supabase
-                .from('profiles')
-                .upsert({ id: currentUser.id, display_name: newName }, { onConflict: 'id' });
-
-            if (error) {
-                console.error('Error setting display name:', error);
-                showMessage(profileMessage, `Error setting display name: ${error.message}`, 'error');
-            } else {
-                showMessage(profileMessage, 'Display name updated successfully!', 'success');
-                updateDisplayNameHeader();
-                updateCurrentDisplayName();
-            }
-        });
-
-        // --- Admin Role Check ---
-
-        async function checkUserAdminStatus(userId) {
+        // --- Fetch User Profiles ---
+        async function fetchUserProfiles() {
+            if (!supabase) return;
+            console.log("Fetching user profiles...");
             try {
                 const { data, error } = await supabase
                     .from('profiles')
-                    .select('is_admin')
-                    .eq('id', userId)
-                    .single();
+                    .select('user_id, display_name');
 
-                if (error && error.code !== 'PGRST116') {
-                    throw error;
-                }
-                isAdmin = data?.is_admin || false;
+                if (error) throw error;
+
+                userProfiles = {}; // Clear existing profiles
+                data.forEach(profile => {
+                    userProfiles[profile.user_id] = profile.display_name || profile.user_id; // Fallback to UID if no display name
+                });
+                console.log("Fetched user profiles:", userProfiles);
             } catch (error) {
-                console.error('Error checking admin status:', error.message);
-                isAdmin = false;
+                console.error("Error fetching user profiles:", error.message);
+                alert("Error fetching user profiles. Check RLS for profiles table.");
             }
-            updateTabVisibility(); // Update tab visibility after checking admin status
         }
 
-        // --- Theme Toggle ---
 
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = document.body.className;
-            const newTheme = currentTheme === 'dark-theme' ? 'light-theme' : 'dark-theme';
-            applyTheme(newTheme);
-        });
+        // --- Fetch Book Details from Supabase ---
+        async function fetchAndRenderBooks() {
+            if (!supabase) return;
+            console.log("Fetching and rendering books...");
+            try {
+                const { data, error } = await supabase
+                    .from('books')
+                    .select(`
+                        id,
+                        title,
+                        author,
+                        isbn,
+                        borrowed_by,
+                        last_modified,
+                        added_by
+                    `);
 
-        // --- Books Management ---
+                if (error) throw error;
 
-        async function fetchBooks(searchTerm = '') {
-            showLoader();
-            let query = supabase
-                .from('books')
-                .select('*')
-                .order('title', { ascending: true });
+                books = data.map(book => {
+                    // Use userProfiles map for display names
+                    let displayBorrowedBy = userProfiles[book.borrowed_by] || book.borrowed_by || 'N/A';
+                    let displayAddedBy = userProfiles[book.added_by] || book.added_by || 'Unknown';
 
-            if (searchTerm) {
-                query = query.or(`title.ilike.%${searchTerm}%,author.ilike.%${searchTerm}%`);
+                    return {
+                        ...book,
+                        displayBorrowedBy: displayBorrowedBy,
+                        displayAddedBy: displayAddedBy
+                    };
+                }).sort((a, b) => a.title.localeCompare(b.title));
+
+                renderBookList();
+            } catch (error) {
+                console.error("Error fetching books from Supabase:", error);
+                alert("Error fetching books. Please check Supabase setup and RLS policies.");
             }
-
-            const { data, error } = await query;
-            hideLoader();
-            if (error) {
-                console.error('Error fetching books:', error);
-                bookListDiv.innerHTML = `<p class="text-center text-red-500">Error loading books: ${error.message}</p>`;
-                noBooksMessage.classList.add('hidden');
-                return;
-            }
-            books = data; // Cache the fetched books
-            renderBookList();
         }
 
-        function renderBookList() {
-            bookListDiv.innerHTML = '';
-            if (books.length === 0) {
-                noBooksMessage.classList.remove('hidden');
-                return;
-            }
-            noBooksMessage.classList.add('hidden');
+        // --- Real-time Books Listener ---
+        function setupRealtimeBooksListener() {
+            if (!supabase) return;
 
-            books.forEach(book => {
-                const bookItem = document.createElement('div');
-                bookItem.className = 'book-item';
-                const isBorrowed = book.borrowed_by !== null;
-                const isBorrowedByCurrentUser = isBorrowed && book.borrowed_by === currentUser?.id;
-                const canBorrow = !isBorrowed && currentUser;
-                const canReturn = isBorrowedByCurrentUser;
+            console.log("Setting up real-time books listener.");
+            // Remove all existing channels to prevent multiple listeners
+            supabase.removeAllChannels();
 
-                bookItem.innerHTML = `
-                    <div class="book-details">
-                        <h3 class="text-xl font-semibold">${book.title}</h3>
-                        <p class="text-gray-400">by ${book.author}</p>
-                        ${book.isbn ? `<p class="text-gray-500 text-sm">ISBN: ${book.isbn}</p>` : ''}
-                        ${book.description ? `<p class="text-gray-300 mt-2 text-sm">${book.description}</p>` : ''}
-                        <p class="mt-2 text-sm ${isBorrowed ? 'text-red-400 font-bold' : 'text-green-400'}">
-                            Status: ${isBorrowed ? `Borrowed by ${book.borrower_display_name || 'another user'}` : 'Available'}
-                        </p>
-                    </div>
-                    <div class="actions mt-4 flex flex-wrap gap-2">
-                        ${canBorrow ? `<button class="borrow-btn bg-blue-600 hover:bg-blue-700 text-white" data-id="${book.id}">Borrow</button>` : ''}
-                        ${canReturn ? `<button class="return-btn bg-green-600 hover:bg-green-700 text-white" data-id="${book.id}">Return</button>` : ''}
-                        ${isAdmin ? `<button class="edit-btn bg-yellow-600 hover:bg-yellow-700 text-white" data-id="${book.id}">Edit</button>` : ''}
-                        ${isAdmin ? `<button class="delete-btn bg-red-600 hover:bg-red-700 text-white" data-id="${book.id}">Delete</button>` : ''}
-                    </div>
-                `;
-                bookListDiv.appendChild(bookItem);
-            });
+            supabase
+                .channel('books_changes')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'books' }, payload => {
+                    console.log('Real-time change received!', payload);
+                    fetchAndRenderBooks(); // Re-fetch all books on any change
+                })
+                .subscribe();
+
+            fetchAndRenderBooks(); // Initial fetch
         }
 
-        // Add/Edit Book
-        addBookForm.addEventListener('submit', handleAddUpdateBook);
-        cancelEditBtn.addEventListener('click', resetAddBookForm);
-
-        async function handleAddUpdateBook(e) {
-            e.preventDefault();
-            if (!isAdmin) {
-                showMessage(addBookMessage, 'You do not have permission to add/edit books.', 'error');
+        // --- Fetch Book Details from Google Books API by ISBN ---
+        async function fetchBookDetailsByIsbn() {
+            const isbnSearchInput = document.getElementById('isbn-search-input').value.trim();
+            if (!isbnSearchInput) {
+                alert("Please enter an ISBN.");
                 return;
             }
 
-            const id = bookIdInput.value;
-            const title = bookTitleInput.value.trim();
-            const author = bookAuthorInput.value.trim();
-            const isbn = bookIsbnInput.value.trim();
-            const description = bookDescriptionInput.value.trim();
+            const apiUrl = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbnSearchInput}`;
+
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (data.items && data.items.length > 0) {
+                    const volumeInfo = data.items[0].volumeInfo;
+                    document.getElementById('book-title').value = volumeInfo.title || '';
+                    document.getElementById('book-author').value = volumeInfo.authors ? volumeInfo.authors.join(', ') : '';
+                    document.getElementById('book-isbn').value = isbnSearchInput;
+                    alert("Book details fetched successfully!");
+                } else {
+                    alert("No book found for this ISBN. Please enter details manually.");
+                    document.getElementById('book-title').value = '';
+                    document.getElementById('book-author').value = '';
+                    document.getElementById('book-isbn').value = isbnSearchInput;
+                }
+            } catch (error) {
+                console.error("Error fetching book details:", error);
+                alert("Error fetching book details. Please check the ISBN or your internet connection.");
+                document.getElementById('book-title').value = '';
+                document.getElementById('book-author').value = '';
+                document.getElementById('book-isbn').value = isbnSearchInput;
+            }
+        }
+
+        // --- Add/Update Book ---
+        async function handleAddUpdateBook(event) {
+            event.preventDefault();
+
+            const title = document.getElementById('book-title').value.trim();
+            const author = document.getElementById('book-author').value.trim();
+            const isbn = document.getElementById('book-isbn').value.trim();
 
             if (!title || !author) {
-                showMessage(addBookMessage, 'Title and Author are required.', 'error');
+                alert("Book title and author cannot be empty.");
                 return;
             }
 
-            showLoader();
-            let error = null;
-            if (id) {
-                // Update existing book
-                const { error: updateError } = await supabase
-                    .from('books')
-                    .update({ title, author, isbn: isbn || null, description: description || null })
-                    .eq('id', id);
-                error = updateError;
-            } else {
-                // Add new book
-                const { error: insertError } = await supabase
-                    .from('books')
-                    .insert({ title, author, isbn: isbn || null, description: description || null });
-                error = insertError;
+            if (!supabase) {
+                alert("Supabase client not initialized. Please try again.");
+                return;
             }
-            hideLoader();
 
-            if (error) {
-                console.error('Error adding/updating book:', error);
-                showMessage(addBookMessage, `Error: ${error.message}`, 'error');
-            } else {
-                showMessage(addBookMessage, `Book ${id ? 'updated' : 'added'} successfully!`, 'success');
-                resetAddBookForm();
-                fetchBooks(); // Refresh book list
+            try {
+                if (editingBook) {
+                    const { data, error } = await supabase
+                        .from('books')
+                        .update({
+                            title: title,
+                            author: author,
+                            isbn: isbn,
+                            "last_modified": new Date().toISOString()
+                        })
+                        .eq('id', editingBook.id);
+
+                    if (error) throw error;
+
+                    alert("Book updated successfully!");
+                    editingBook = null;
+                    document.getElementById('add-edit-book-form').reset();
+                    document.getElementById('add-edit-form-title').textContent = 'Add New Book';
+                    document.getElementById('add-update-button').textContent = 'Add Book';
+                    document.getElementById('cancel-edit-button').classList.add('hidden');
+                    document.getElementById('isbn-search-section').classList.remove('hidden');
+                } else {
+                    const { data, error } = await supabase
+                        .from('books')
+                        .insert([
+                            {
+                                title: title,
+                                author: author,
+                                isbn: isbn,
+                                "borrowed_by": null,
+                                "added_by": userId
+                            }
+                        ]);
+
+                    if (error) throw error;
+
+                    alert("Book added successfully!");
+                    document.getElementById('add-edit-book-form').reset();
+                    document.getElementById('isbn-search-input').value = '';
+                }
+            } catch (e) {
+                console.error("Error saving book: ", e);
+                alert(`Error saving book: ${e.message}. Please check RLS policies and admin permissions.`);
             }
         }
 
-        function resetAddBookForm() {
-            addBookForm.reset();
-            bookIdInput.value = '';
-            addBookSubmitBtn.textContent = 'Add Book';
-            cancelEditBtn.classList.add('hidden');
-            addBookMessage.classList.add('hidden'); // Clear message
+        // --- Handle Edit Click ---
+        function handleEditClick(bookId) {
+            editingBook = books.find(b => b.id === bookId);
+            if (editingBook) {
+                document.getElementById('book-title').value = editingBook.title;
+                document.getElementById('book-author').value = editingBook.author;
+                document.getElementById('book-isbn').value = editingBook.isbn;
+
+                document.getElementById('add-edit-form-title').textContent = 'Edit Book Details';
+                document.getElementById('add-update-button').textContent = 'Update Book';
+                document.getElementById('cancel-edit-button').classList.remove('hidden');
+                document.getElementById('isbn-search-section').classList.add('hidden');
+            }
         }
 
-        bookListDiv.addEventListener('click', async (e) => {
-            const target = e.target;
-            const bookId = target.dataset.id;
+        // --- Handle Cancel Edit ---
+        function handleCancelEdit() {
+            editingBook = null;
+            document.getElementById('add-edit-book-form').reset();
+            document.getElementById('add-edit-form-title').textContent = 'Add New Book';
+            document.getElementById('add-update-button').textContent = 'Add Book';
+            document.getElementById('cancel-edit-button').classList.add('hidden');
+            document.getElementById('isbn-search-section').classList.remove('hidden');
+        }
 
-            if (target.classList.contains('borrow-btn')) {
-                if (!currentUser) {
-                    showMessage(booksSection.querySelector('.message') || bookListDiv, 'You must be logged in to borrow books.', 'error'); // More specific message placement
+        // --- Handle Borrow/Return ---
+        async function handleBorrowReturn(bookId, currentBorrowedByUid) {
+            if (!supabase || !userId) {
+                alert("You must be logged in to borrow or return books.");
+                return;
+            }
+
+            let message = '';
+            let newBorrowedByValue = null;
+
+            if (currentBorrowedByUid && currentBorrowedByUid !== 'null') {
+                if (currentBorrowedByUid === userId) {
+                    newBorrowedByValue = null;
+                    message = "Book returned successfully!";
+                } else {
+                    alert("This book is borrowed by another user. Only the borrower can return it.");
                     return;
                 }
-                const { error } = await supabase
-                    .from('books')
-                    .update({ borrowed_by: currentUser.id, borrower_display_name: localStorage.getItem('display_name') || currentUser.email })
-                    .eq('id', bookId)
-                    .is('borrowed_by', null); // Only update if not already borrowed
+            } else {
+                newBorrowedByValue = userId;
+                message = `Book borrowed by you!`;
+            }
 
-                if (error) {
-                    console.error('Error borrowing book:', error);
-                    showMessage(booksSection.querySelector('.message') || bookListDiv, `Error borrowing book: ${error.message}`, 'error');
-                } else {
-                    showMessage(booksSection.querySelector('.message') || bookListDiv, 'Book borrowed successfully!', 'success');
-                    fetchBooks();
-                }
-            } else if (target.classList.contains('return-btn')) {
-                if (!currentUser) return; // Should not happen if button isn't shown
-                const { error } = await supabase
+            try {
+                const { data, error } = await supabase
                     .from('books')
-                    .update({ borrowed_by: null, borrower_display_name: null })
-                    .eq('id', bookId)
-                    .eq('borrowed_by', currentUser.id); // Only allow current user to return their own book
+                    .update({
+                        "borrowed_by": newBorrowedByValue,
+                        "last_modified": new Date().toISOString()
+                    })
+                    .eq('id', bookId);
 
-                if (error) {
-                    console.error('Error returning book:', error);
-                    showMessage(booksSection.querySelector('.message') || bookListDiv, `Error returning book: ${error.message}`, 'error');
-                } else {
-                    showMessage(booksSection.querySelector('.message') || bookListDiv, 'Book returned successfully!', 'success');
-                    fetchBooks();
-                }
-            } else if (target.classList.contains('edit-btn')) {
-                if (!isAdmin) return;
-                const bookToEdit = books.find(book => book.id === bookId);
-                if (bookToEdit) {
-                    bookIdInput.value = bookToEdit.id;
-                    bookTitleInput.value = bookToEdit.title;
-                    bookAuthorInput.value = bookToEdit.author;
-                    bookIsbnInput.value = bookToEdit.isbn || '';
-                    bookDescriptionInput.value = bookToEdit.description || '';
-                    addBookSubmitBtn.textContent = 'Update Book';
-                    cancelEditBtn.classList.remove('hidden');
-                    switchTab('add-book-section'); // Switch to Add Book tab for editing
-                }
-            } else if (target.classList.contains('delete-btn')) {
-                if (!isAdmin) return;
-                if (confirm('Are you sure you want to delete this book?')) {
-                    showLoader();
+                if (error) throw error;
+                alert(message);
+            } catch (e) {
+                console.error("Error updating borrow status: ", e);
+                alert(`Error updating borrow status: ${e.message}. Please check RLS policies.`);
+            }
+        }
+
+        // --- Handle Delete Book ---
+        async function handleDeleteBook(bookId) {
+            if (!supabase) {
+                alert("Supabase client not initialized. Please try again.");
+                return;
+            }
+
+            if (!isAdmin) {
+                alert("Only administrators can delete books.");
+                return;
+            }
+
+            const confirmDelete = confirm("Are you sure you want to delete this book?");
+            if (confirmDelete) {
+                try {
                     const { error } = await supabase
                         .from('books')
                         .delete()
                         .eq('id', bookId);
-                    hideLoader();
-                    if (error) {
-                        console.error('Error deleting book:', error);
-                        showMessage(booksSection.querySelector('.message') || bookListDiv, `Error deleting book: ${error.message}`, 'error');
-                    } else {
-                        showMessage(booksSection.querySelector('.message') || bookListDiv, 'Book deleted successfully!', 'success');
-                        fetchBooks();
-                    }
+
+                    if (error) throw error;
+                    alert("Book deleted successfully!");
+                } catch (e) {
+                    console.error("Error deleting document: ", e);
+                    alert(`Error deleting book: ${e.message}. Please check RLS policies.`);
                 }
+            } else {
+                alert("Delete action cancelled.");
             }
-        });
-
-        // Search functionality
-        searchInput.addEventListener('input', () => {
-            const searchTerm = searchInput.value.trim();
-            fetchBooks(searchTerm);
-        });
-
-        // --- User Management (Admin only) ---
-
-        async function fetchUsers() {
-            if (!isAdmin) {
-                userListDiv.innerHTML = '<p class="text-center text-red-500">You do not have permission to view users.</p>';
-                return;
-            }
-            showLoader();
-            const { data: users, error } = await supabase
-                .from('profiles')
-                .select('*')
-                .order('display_name', { ascending: true });
-            hideLoader();
-
-            if (error) {
-                console.error('Error fetching users:', error);
-                userListDiv.innerHTML = `<p class="text-center text-red-500">Error loading users: ${error.message}</p>`;
-                return;
-            }
-
-            renderUserList(users);
         }
 
-        function renderUserList(users) {
-            userListDiv.innerHTML = '';
-            if (users.length === 0) {
-                userListDiv.innerHTML = '<p class="text-center text-gray-500">No users found.</p>';
+        // --- Authentication Functions ---
+        async function handleAuth(event, isSignUp) {
+            event.preventDefault();
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value.trim();
+
+            if (!email || !password) {
+                alert("Email and password cannot be empty.");
                 return;
             }
 
-            users.forEach(user => {
-                const userItem = document.createElement('div');
-                userItem.className = 'user-item';
-                userItem.innerHTML = `
-                    <span>${user.display_name || user.id} (Admin: ${user.is_admin ? 'Yes' : 'No'})</span>
-                    <div class="actions">
-                        ${user.id !== currentUser.id ? `
-                            ${user.is_admin ?
-                                `<button class="toggle-admin-btn bg-red-600 hover:bg-red-700" data-id="${user.id}" data-is-admin="true">Revoke Admin</button>` :
-                                `<button class="toggle-admin-btn bg-green-600 hover:bg-green-700" data-id="${user.id}" data-is-admin="false">Make Admin</button>`
-                            }
-                            <button class="delete-user-btn bg-red-800 hover:bg-red-900 ml-2" data-id="${user.id}">Delete User</button>
-                        ` : '<span class="text-gray-500"> (You)</span>'}
+            if (!supabase) {
+                alert("Supabase client not initialized. Please try again.");
+                return;
+            }
+
+            try {
+                let response;
+                if (isSignUp) {
+                    response = await supabase.auth.signUp({ email, password });
+                    if (response.error) {
+                        throw response.error;
+                    }
+                    if (response.data.user) {
+                        alert("Sign up successful and logged in! You can now set your display name.");
+                    } else {
+                        // This case is for when email confirmation is required but no auto-login happens
+                        alert("Sign up successful! Please check your email to confirm your account.");
+                    }
+                } else { // is login
+                    response = await supabase.auth.signInWithPassword({ email, password });
+                    if (response.error) {
+                        throw response.error;
+                    }
+                    alert("Login successful!");
+                }
+                // onAuthStateChange listener will now handle renderView('main') on success
+            } catch (error) {
+                console.error("Auth error:", error);
+                alert(`Authentication failed: ${error.message}`);
+            }
+        }
+
+        async function handleLogout() {
+            if (!supabase) return;
+            try {
+                const { error } = await supabase.auth.signOut();
+                if (error) throw error;
+                alert("You have been logged out.");
+                // Auth state change listener will handle view rendering
+            } catch (error) {
+                console.error("Logout error:", error);
+                alert(`Logout failed: ${error.message}`);
+            }
+        }
+
+        // --- Profile Management ---
+        async function handleSetDisplayName(event) {
+            event.preventDefault();
+            const newDisplayName = document.getElementById('display-name-input').value.trim();
+
+            if (!newDisplayName) {
+                alert("Display name cannot be empty.");
+                return;
+            }
+            if (!userId) {
+                alert("You must be logged in to set a display name.");
+                return;
+            }
+
+            try {
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .upsert({ user_id: userId, display_name: newDisplayName }, { onConflict: 'user_id' })
+                    .select(); // Use select() to get the updated data back
+
+                if (error) throw error;
+
+                // Update the local userProfiles map and re-render UI
+                userProfiles[userId] = newDisplayName;
+                alert("Display name updated successfully!");
+                updateUserInfoDisplay(); // Update header
+                renderBookList(); // Update book list to show new name
+            } catch (error) {
+                console.error("Error setting display name:", error);
+                alert(`Failed to set display name: ${error.message}`);
+            }
+        }
+
+
+        // --- View Rendering Logic ---
+        function renderView(viewName) {
+            let htmlContent = '';
+            const isDarkMode = document.body.classList.contains('dark-mode');
+
+            if (viewName === 'auth') {
+                htmlContent = `
+                    <div class="flex items-center justify-center min-h-screen">
+                        <div class="max-w-md w-full bg-white p-8 rounded-xl shadow-lg">
+                            <h2 class="text-3xl font-bold text-center text-sub-header-light mb-6">
+                                Welcome to Family Library
+                            </h2>
+                            <form id="auth-form" class="space-y-4">
+                                <div>
+                                    <label for="auth-email" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Email
+                                    </label>
+                                    <input type="email" id="auth-email" class="mt-1 block w-full
+                                        px-3 py-2 border border-gray-300 rounded-md shadow-sm
+                                        focus:outline-none focus:ring-purple-500 focus:border-purple-500
+                                        ${isDarkMode ? 'dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600' : ''}">
+                                </div>
+                                <div>
+                                    <label for="auth-password" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Password
+                                    </label>
+                                    <input type="password" id="auth-password" class="mt-1 block w-full
+                                        px-3 py-2 border border-gray-300 rounded-md shadow-sm
+                                        focus:outline-none focus:ring-purple-500 focus:border-purple-500
+                                        ${isDarkMode ? 'dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600' : ''}">
+                                </div>
+                                <button type="submit" id="signin-btn" class="w-full btn-primary py-2 px-4 rounded-md text-white font-semibold">
+                                    Sign In
+                                </button>
+                                <button type="button" id="signup-btn" class="w-full btn-secondary py-2 px-4 rounded-md font-semibold mt-2">
+                                    Sign Up
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 `;
-                userListDiv.appendChild(userItem);
-            });
+            } else if (viewName === 'main') {
+                const userDisplayName = userProfiles[userId] || userEmail || 'Guest';
+                htmlContent = `
+                    <div class="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-lg my-8">
+                        <div class="flex justify-between items-center mb-6">
+                            <h1 class="text-4xl font-extrabold text-header-light">Family Library</h1>
+                            <div>
+                                <p class="text-lg font-semibold text-gray-800">Hello, <span class="text-purple-700">${userDisplayName}</span>!</p>
+                                ${isAdmin ? '<p class="text-sm text-gray-600">(Admin)</p>' : ''}
+                                <button id="logout-btn" class="btn-red text-sm py-1 px-3 rounded-md mt-2">
+                                    Logout
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mb-8 p-4 bg-gray-50 rounded-lg shadow-inner">
+                            <h2 class="text-xl font-bold text-sub-header-light mb-3">Your Profile</h2>
+                            <form id="set-display-name-form" class="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
+                                <label for="display-name-input" class="text-gray-700 text-sm font-medium sr-only">Display Name:</label>
+                                <input type="text" id="display-name-input" placeholder="Set your display name"
+                                    value="${userDisplayName !== userEmail && userDisplayName !== 'Guest' ? userDisplayName : ''}"
+                                    class="flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm
+                                    focus:outline-none focus:ring-purple-500 focus:border-purple-500">
+                                <button type="submit" class="btn-primary py-2 px-4 rounded-md text-white font-semibold flex-shrink-0">
+                                    Set Display Name
+                                </button>
+                            </form>
+                        </div>
+
+                        ${isAdmin ? `
+                        <div class="mb-8 p-6 bg-gray-50 rounded-lg shadow-inner">
+                            <h2 id="add-edit-form-title" class="text-2xl font-bold text-sub-header-light mb-4">Add New Book</h2>
+                            <form id="add-edit-book-form" class="space-y-4">
+                                <div id="isbn-search-section">
+                                    <label for="isbn-search-input" class="block text-sm font-medium text-gray-700 mb-1">
+                                        ISBN (Optional for auto-fill)
+                                    </label>
+                                    <div class="flex space-x-2">
+                                        <input type="text" id="isbn-search-input" placeholder="Enter ISBN to auto-fill"
+                                            class="flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm
+                                            focus:outline-none focus:ring-purple-500 focus:border-purple-500">
+                                        <button type="button" id="fetch-details-btn" class="btn-purple py-2 px-4 rounded-md font-semibold flex-shrink-0">
+                                            Fetch Details
+                                        </button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="book-title" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Title <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" id="book-title" required
+                                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm
+                                        focus:outline-none focus:ring-purple-500 focus:border-purple-500">
+                                </div>
+                                <div>
+                                    <label for="book-author" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Author <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" id="book-author" required
+                                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm
+                                        focus:outline-none focus:ring-purple-500 focus:border-purple-500">
+                                </div>
+                                <input type="hidden" id="book-isbn">
+                                <div class="flex space-x-2">
+                                    <button type="submit" id="add-update-button" class="btn-primary py-2 px-4 rounded-md font-semibold">
+                                        Add Book
+                                    </button>
+                                    <button type="button" id="cancel-edit-button" class="btn-secondary py-2 px-4 rounded-md font-semibold hidden">
+                                        Cancel Edit
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        ` : ''}
+
+                        <div class="mb-8">
+                            <h2 class="text-2xl font-bold text-sub-header-light mb-4">Books Available</h2>
+                            <input type="text" id="search-input" placeholder="Search by title or author..."
+                                class="mb-4 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm
+                                focus:outline-none focus:ring-purple-500 focus:border-purple-500">
+                            <div id="books-list" class="space-y-3">
+                                </div>
+                            <p id="no-books-message" class="text-gray-500 text-center mt-4 hidden">No books found.</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            appDiv.innerHTML = htmlContent; // Render the main content
+
+            // Attach event listeners after content is in the DOM
+            if (viewName === 'auth') {
+                document.getElementById('auth-form').addEventListener('submit', (e) => handleAuth(e, false));
+                document.getElementById('signup-btn').addEventListener('click', (e) => handleAuth(e, true));
+            } else if (viewName === 'main') {
+                document.getElementById('logout-btn').addEventListener('click', handleLogout);
+                document.getElementById('set-display-name-form').addEventListener('submit', handleSetDisplayName);
+                document.getElementById('search-input').addEventListener('input', (e) => {
+                    const searchTerm = e.target.value.toLowerCase();
+                    const filteredBooks = books.filter(book =>
+                        book.title.toLowerCase().includes(searchTerm) ||
+                        book.author.toLowerCase().includes(searchTerm)
+                    );
+                    renderBookList(filteredBooks); // Render filtered books
+                });
+
+                if (isAdmin) {
+                    document.getElementById('add-edit-book-form').addEventListener('submit', handleAddUpdateBook);
+                    document.getElementById('fetch-details-btn').addEventListener('click', fetchBookDetailsByIsbn);
+                    document.getElementById('cancel-edit-button').addEventListener('click', handleCancelEdit);
+                }
+
+                // Initial render of books (they will be fetched and re-rendered by setupRealtimeBooksListener)
+                fetchAndRenderBooks(); // This also calls renderBookList internally
+            }
         }
 
-        userListDiv.addEventListener('click', async (e) => {
-            const target = e.target;
-            const userId = target.dataset.id;
+        function updateUserInfoDisplay() {
+            const userNameSpan = document.querySelector('.text-purple-700');
+            if (userNameSpan) {
+                userNameSpan.textContent = userProfiles[userId] || userEmail || 'Guest';
+            }
+        }
 
-            if (!isAdmin) {
-                showMessage(userMessage, 'You do not have permission for user management.', 'error');
+        // --- Render Books List ---
+        function renderBookList(booksToDisplay = books) {
+            const booksListElement = document.getElementById('books-list');
+            const noBooksMessage = document.getElementById('no-books-message');
+
+            if (!booksListElement) {
+                console.warn("Books list element not found. Skipping book list render.");
                 return;
             }
 
-            if (target.classList.contains('toggle-admin-btn')) {
-                const currentAdminStatus = target.dataset.isAdmin === 'true';
-                const newAdminStatus = !currentAdminStatus;
-                if (confirm(`Are you sure you want to ${newAdminStatus ? 'grant' : 'revoke'} admin privileges for this user?`)) {
-                    showLoader();
-                    const { error } = await supabase
-                        .from('profiles')
-                        .update({ is_admin: newAdminStatus })
-                        .eq('id', userId);
-                    hideLoader();
-                    if (error) {
-                        console.error('Error toggling admin status:', error);
-                        showMessage(userMessage, `Error: ${error.message}`, 'error');
-                    } else {
-                        showMessage(userMessage, 'Admin status updated!', 'success');
-                        fetchUsers(); // Refresh user list
-                    }
-                }
-            } else if (target.classList.contains('delete-user-btn')) {
-                if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
-                    showLoader();
-                    const { error: authError } = await supabase.rpc('delete_user_by_id', { user_id_to_delete: userId });
-                    hideLoader();
-                    if (authError) {
-                        console.error('Error deleting user:', authError);
-                        showMessage(userMessage, `Error deleting user: ${authError.message}`, 'error');
-                    } else {
-                        showMessage(userMessage, 'User deleted successfully!', 'success');
-                        fetchUsers(); // Refresh user list
-                    }
-                }
+            if (booksToDisplay.length === 0) {
+                booksListElement.innerHTML = '';
+                if (noBooksMessage) noBooksMessage.classList.remove('hidden');
+            } else {
+                if (noBooksMessage) noBooksMessage.classList.add('hidden');
+                booksListElement.innerHTML = booksToDisplay.map(book => {
+                    const isBorrowed = book.borrowed_by !== null;
+                    const isBorrowedByCurrentUser = book.borrowed_by === userId;
+                    const borrowerName = isBorrowed ? book.displayBorrowedBy : ''; // Use display name
+                    const addedByName = book.displayAddedBy; // Use display name for added_by
+
+                    return `
+                        <div class="book-list-item bg-gray-50 p-4 rounded-lg shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center border border-gray-200">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">${book.title}</h3>
+                                <p class="text-gray-600 text-sm">by ${book.author}</p>
+                                <p class="text-gray-500 text-xs">Added by: ${addedByName}</p>
+                                ${isBorrowed ?
+                                    `<p class="text-sm text-yellow-700 mt-1">Borrowed by: ${borrowerName}</p>` :
+                                    `<p class="text-sm text-green-700 mt-1">Available</p>`
+                                }
+                            </div>
+                            <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 mt-3 sm:mt-0">
+                                ${isAdmin ? `
+                                    <button data-id="${book.id}" class="btn-blue text-sm py-1 px-3 rounded-md edit-btn">Edit</button>
+                                    <button data-id="${book.id}" class="btn-red text-sm py-1 px-3 rounded-md delete-btn">Delete</button>
+                                ` : ''}
+                                ${isBorrowed ?
+                                    (isBorrowedByCurrentUser ?
+                                        `<button data-id="${book.id}" data-borrowed-by="${book.borrowed_by}" class="btn-green text-sm py-1 px-3 rounded-md borrow-return-btn">Return</button>` :
+                                        `<button class="btn-yellow text-sm py-1 px-3 rounded-md opacity-75 cursor-not-allowed" disabled>Borrowed</button>`)
+                                    :
+                                    `<button data-id="${book.id}" data-borrowed-by="${book.borrowed_by}" class="btn-yellow text-sm py-1 px-3 rounded-md borrow-return-btn">Borrow</button>`
+                                }
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                // Attach action listeners after rendering list items
+                document.querySelectorAll('.edit-btn').forEach(button => {
+                    button.addEventListener('click', () => handleEditClick(button.dataset.id));
+                });
+                document.querySelectorAll('.delete-btn').forEach(button => {
+                    button.addEventListener('click', () => handleDeleteBook(button.dataset.id));
+                });
+                document.querySelectorAll('.borrow-return-btn').forEach(button => {
+                    button.addEventListener('click', () => handleBorrowReturn(button.dataset.id, button.dataset.borrowedBy));
+                });
             }
-        });
+        }
 
-        // --- Event Listeners for Tabs ---
-        mainTabNav.addEventListener('click', (e) => {
-            if (e.target.tagName === 'BUTTON') {
-                const tabId = e.target.dataset.tab;
-                if (tabId) {
-                    // Only switch if the tab is not hidden (e.g., admin tabs)
-                    if (!e.target.classList.contains('hidden')) {
-                         switchTab(tabId);
-                    }
-                }
+        // --- Theme Toggling ---
+        function applyTheme(theme) {
+            const body = document.body;
+            if (theme === 'dark') {
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+            } else {
+                body.classList.remove('dark-mode');
+                body.classList.add('light-mode');
             }
+            localStorage.setItem('theme', theme);
+        }
+
+        function getPreferredTheme() {
+            const storedTheme = localStorage.getItem('theme');
+            if (storedTheme) {
+                return storedTheme;
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+
+        // --- Event Listeners and Initial Load ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('DOMContentLoaded fired.');
+            applyTheme(getPreferredTheme()); // Apply theme as early as possible
+            document.body.classList.add('transition-colors', 'duration-300'); // Enable transition after initial theme set
+
+            const footer = document.createElement('footer');
+            footer.className = 'p-4 text-center text-gray-600 text-sm';
+            footer.innerHTML = `
+                <div class="container mx-auto">
+                    <p>&copy; <span id="current-year"></span> Family Library. All rights reserved.</p>
+                    <div class="flex justify-center items-center mt-2 space-x-4">
+                        <button id="theme-toggle" class="px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-opacity-75
+                            bg-gray-200 text-gray-800 hover:bg-gray-300
+                            dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600">
+                            Toggle Theme
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(footer);
+
+            document.getElementById('current-year').textContent = new Date().getFullYear();
+
+            document.getElementById('theme-toggle').addEventListener('click', () => {
+                const newTheme = document.body.classList.contains('light-mode') ? 'dark' : 'light';
+                applyTheme(newTheme);
+            });
+
+            await initializeSupabase();
         });
-
-
-        // --- Initial Load ---
-        initialAuthCheck(); // This will trigger renderView('main') or 'auth' and then switch to default tab if main
     </script>
 </body>
 </html>
