@@ -448,7 +448,7 @@
     <script type="module">
         // Initialize Supabase - REPLACE WITH YOUR ACTUAL KEYS
         const SUPABASE_URL = 'https://nhoozjzvkydxwlrshqis.supabase.co'; // Using key from Test.html
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ob296anp2a3lkeHdscnNocWlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA3NzMyNDEsImV4cCI6MjA2NjM0OTI0MX0.5PfsT7CBIBOIziR8k0FsMPZzW0z7EzVrzFaWvhOIK9M'; // Using key from Test.html
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5hoozjzvkydxwlrshqisIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA3NzMyNDEsImV4cCI6MjA2NjM0OTI0MX0.5PfsT7CBIBOIziR8k0FsMPZzW0z7EzVrzFaWvhOIK9M'; // Using key from Test.html
 
         // Ensure createClient is available from the global Supabase object
         let createClient;
@@ -846,7 +846,9 @@
 
                 if (error) throw error;
                 alert(message);
-            } catch (e) {
+            }
+            // Use this catch block to provide user feedback
+            catch (e) {
                 console.error("Error updating borrow status: ", e);
                 alert(`Error updating borrow status: ${e.message}. Please check RLS policies.`);
             }
@@ -985,18 +987,35 @@
 
         // --- View Rendering Logic (Tabs & Main/Auth views) ---
         function renderAuthView() {
+            console.log("Rendering auth view...");
             initialLoadingScreen.style.display = 'none';
-            mainContentDiv.classList.add('hidden');
-            authViewDiv.classList.remove('hidden');
-            // Ensure auth-email and auth-password are clear on view change
-            document.getElementById('auth-email').value = '';
-            document.getElementById('auth-password').value = '';
+            if (mainContentDiv) mainContentDiv.classList.add('hidden');
+            if (authViewDiv) authViewDiv.classList.remove('hidden');
+
+            // Re-attach event listeners after innerHTML might have been replaced
+            const authForm = document.getElementById('auth-form');
+            const signInBtn = document.getElementById('signin-btn');
+            const signUpBtn = document.getElementById('signup-btn');
+
+            if (authForm) {
+                // Remove existing listeners to prevent duplicates
+                authForm.removeEventListener('submit', (e) => handleAuth(e, false));
+                signInBtn.removeEventListener('click', (e) => handleAuth(e, false)); // Adjusted to match new HTML structure
+                signUpBtn.removeEventListener('click', (e) => handleAuth(e, true));
+
+                // Add new listeners
+                authForm.addEventListener('submit', (e) => handleAuth(e, false)); // Sign In on form submit
+                signInBtn.addEventListener('click', (e) => handleAuth(e, false)); // Redundant if form submit works, but good for clarity
+                signUpBtn.addEventListener('click', (e) => handleAuth(e, true)); // Sign Up
+            }
+             console.log("Auth view rendered.");
         }
 
         function renderMainAppContent() {
+            console.log("Rendering main app content...");
             initialLoadingScreen.style.display = 'none';
-            authViewDiv.classList.add('hidden');
-            mainContentDiv.classList.remove('hidden');
+            if (authViewDiv) authViewDiv.classList.add('hidden');
+            if (mainContentDiv) mainContentDiv.classList.remove('hidden');
 
             // Set initial tab to Home if no active tab or reload
             const currentActiveTab = document.querySelector('.tab-btn.tab-active');
@@ -1005,13 +1024,15 @@
             }
 
             // Update admin tab visibility
-            if (isAdmin) {
-                adminTab.classList.remove('hidden');
-            } else {
-                adminTab.classList.add('hidden');
-                // If admin tab was active, switch to home
-                if (document.querySelector('.tab-btn.tab-active')?.dataset.tab === 'admin') {
-                    switchTab('home');
+            if (adminTab) { // Ensure adminTab element exists
+                if (isAdmin) {
+                    adminTab.classList.remove('hidden');
+                } else {
+                    adminTab.classList.add('hidden');
+                    // If admin tab was active, switch to home
+                    if (document.querySelector('.tab-btn.tab-active')?.dataset.tab === 'admin') {
+                        switchTab('home');
+                    }
                 }
             }
 
@@ -1025,10 +1046,13 @@
                 renderLeaderboard();
             } else if (activeTabName === 'profile') {
                 const displayNameInput = document.getElementById('display-name-input');
-                displayNameInput.value = userProfiles[userId] || userEmail || '';
+                if (displayNameInput) {
+                     displayNameInput.value = userProfiles[userId] || userEmail || '';
+                }
             } else if (activeTabName === 'home') {
                 renderHomePageContent(); // Explicitly call for home page
             }
+             console.log("Main app content rendered.");
         }
 
         // Function to switch tabs
@@ -1051,8 +1075,14 @@
                 } else if (tabName === 'leaderboard') {
                     renderLeaderboard();
                 } else if (tabName === 'profile') {
-                    document.getElementById('display-name-input').value = userProfiles[userId] || userEmail || '';
-                    document.getElementById('profile-message').textContent = ''; // Clear message on tab switch
+                    const displayNameInput = document.getElementById('display-name-input');
+                    if (displayNameInput) {
+                        displayNameInput.value = userProfiles[userId] || userEmail || '';
+                    }
+                    const profileMessage = document.getElementById('profile-message');
+                    if (profileMessage) {
+                         profileMessage.textContent = ''; // Clear message on tab switch
+                    }
                 } else if (tabName === 'home') {
                     renderHomePageContent();
                 }
@@ -1078,7 +1108,7 @@
         function renderBookList(booksToDisplay = books) {
             const booksListElement = document.getElementById('books-list');
             const noBooksMessage = document.getElementById('no-books-message');
-            const searchInput = document.getElementById('search-input'); // Get reference inside the function
+            const searchInput = document.getElementById('search-input');
             const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
 
 
@@ -1139,7 +1169,7 @@
         function renderAdminBookList() {
             const adminBookListElement = document.getElementById('admin-book-list');
             const noAdminBooksMessage = document.getElementById('no-admin-books-message');
-            const adminSearchInput = document.getElementById('admin-search-input'); // Get reference inside the function
+            const adminSearchInput = document.getElementById('admin-search-input');
             const searchTerm = adminSearchInput ? adminSearchInput.value.toLowerCase() : '';
 
             if (!adminBookListElement || !isAdmin) {
@@ -1230,13 +1260,20 @@
             if (!userId) { // Only render if user is logged in
                 console.log("Not logged in, skipping home page content render.");
                 // Optionally clear home content if user logs out while on home tab
-                document.getElementById('home-greeting').textContent = '';
-                document.getElementById('your-borrowed-books-list').innerHTML = `<p class="text-gray-500" id="no-borrowed-books-message">You currently have no books borrowed.</p>`;
-                document.getElementById('recently-added-books-list').innerHTML = `<p class="text-gray-500" id="no-recent-books-message">No recently added books to display.</p>`;
-                document.getElementById('stat-total-books').textContent = '0';
-                document.getElementById('stat-borrowed-books').textContent = '0';
-                document.getElementById('stat-available-books').textContent = '0';
-                document.getElementById('stat-unique-borrowers').textContent = '0';
+                const homeGreeting = document.getElementById('home-greeting');
+                if (homeGreeting) homeGreeting.textContent = '';
+                const borrowedBooksList = document.getElementById('your-borrowed-books-list');
+                if (borrowedBooksList) borrowedBooksList.innerHTML = `<p class="text-gray-500" id="no-borrowed-books-message">You currently have no books borrowed.</p>`;
+                const recentlyAddedBooksList = document.getElementById('recently-added-books-list');
+                if (recentlyAddedBooksList) recentlyAddedBooksList.innerHTML = `<p class="text-gray-500" id="no-recent-books-message">No recently added books to display.</p>`;
+                const statTotalBooks = document.getElementById('stat-total-books');
+                if (statTotalBooks) statTotalBooks.textContent = '0';
+                const statBorrowedBooks = document.getElementById('stat-borrowed-books');
+                if (statBorrowedBooks) statBorrowedBooks.textContent = '0';
+                const statAvailableBooks = document.getElementById('stat-available-books');
+                if (statAvailableBooks) statAvailableBooks.textContent = '0';
+                const statUniqueBorrowers = document.getElementById('stat-unique-borrowers');
+                if (statUniqueBorrowers) statUniqueBorrowers.textContent = '0';
                 return;
             }
             renderUserGreeting();
@@ -1386,12 +1423,18 @@
             applyTheme(getPreferredTheme()); // Apply theme as early as possible
             document.body.classList.add('transition-colors', 'duration-300'); // Enable transition after initial theme set
 
-            // Initialize global event listeners that are always present after main content is loaded
-            // These listeners are on the header elements from family-library-final.html
-            // Re-attaching these here ensures they work even after re-rendering main-content
-            document.getElementById('logout-btn').addEventListener('click', handleLogout);
-            document.getElementById('toggle-theme').addEventListener('click', toggleTheme);
+            // These listeners are on elements that are part of the main app content,
+            // so they should be set up after mainContentDiv is rendered or its content is updated.
+            // For now, these are fine here as they are globally defined elements that persist.
+            const logoutButton = document.getElementById('logout-btn');
+            if (logoutButton) {
+                logoutButton.addEventListener('click', handleLogout);
+            }
 
+            const toggleThemeButton = document.getElementById('toggle-theme');
+            if (toggleThemeButton) {
+                toggleThemeButton.addEventListener('click', toggleTheme);
+            }
 
             // Tab switching logic
             tabs.forEach(tab => {
@@ -1401,22 +1444,35 @@
             });
 
             // Catalogue search input
-            document.getElementById('search-input').addEventListener('input', () => renderBookList());
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                searchInput.addEventListener('input', () => renderBookList());
+            }
             // Admin search input
-            document.getElementById('admin-search-input').addEventListener('input', () => renderAdminBookList());
+            const adminSearchInput = document.getElementById('admin-search-input');
+            if (adminSearchInput) {
+                 adminSearchInput.addEventListener('input', () => renderAdminBookList());
+            }
 
-
-            // Admin Tab Specific Listeners (only attach if admin tab exists, which is always, but functionality is gated)
-            document.getElementById('add-edit-book-form').addEventListener('submit', handleAddUpdateBook);
-            document.getElementById('fetch-details-btn').addEventListener('click', fetchBookDetailsByIsbn);
-            document.getElementById('cancel-edit-button').addEventListener('click', handleCancelEdit);
+            // Admin Tab Specific Listeners
+            const addEditBookForm = document.getElementById('add-edit-book-form');
+            if (addEditBookForm) {
+                addEditBookForm.addEventListener('submit', handleAddUpdateBook);
+            }
+            const fetchDetailsBtn = document.getElementById('fetch-details-btn');
+            if (fetchDetailsBtn) {
+                fetchDetailsBtn.addEventListener('click', fetchBookDetailsByIsbn);
+            }
+            const cancelEditButton = document.getElementById('cancel-edit-button');
+            if (cancelEditButton) {
+                cancelEditButton.addEventListener('click', handleCancelEdit);
+            }
 
             // Profile Tab Listener
-            document.getElementById('profile-form').addEventListener('submit', handleSetDisplayName);
-
-            // Auth View Listeners (these are on elements within auth-view, so they need to be attached after auth-view is rendered)
-            // They are now handled directly within renderAuthView.
-            // These lines are redundant here if renderAuthView always recreates and attaches them.
+            const profileForm = document.getElementById('profile-form');
+            if (profileForm) {
+                profileForm.addEventListener('submit', handleSetDisplayName);
+            }
 
             await initializeSupabase(); // Start the Supabase initialization process
         });
