@@ -223,6 +223,9 @@
             background-image: linear-gradient(225deg, #e1bee7, #ce93d8, #e0b0e9, #f3e5f5); /* Light mode gradient */
             background-size: 400% 400%;
             animation: gradientBackground 15s ease infinite;
+            z-index: 1000; /* Ensure it's on top */
+            position: fixed; /* Fix it to the viewport */
+            top: 0; left: 0; right: 0; bottom: 0;
         }
         .dark-mode .loading-container {
             color: #E1BEE7; /* Light purple text in dark mode */
@@ -443,17 +446,27 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script type="module">
+        // Initialize Supabase - REPLACE WITH YOUR ACTUAL KEYS
+        const SUPABASE_URL = 'https://nhoozjzvkydxwlrshqis.supabase.co'; // Using key from Test.html
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ob296anp2a3lkeHdscnNocWlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA3NzMyNDEsImV4cCI6MjA2NjM0OTI0MX0.5PfsT7CBIBOIziR8k0FsMPZzW0z7EzVrzFaWvhOIK9M'; // Using key from Test.html
+
+        // Ensure createClient is available from the global Supabase object
         let createClient;
-        if (window.supabase) {
+        if (window.supabase && typeof window.supabase.createClient === 'function') {
             createClient = window.supabase.createClient;
+            console.log("Supabase createClient found.");
         } else {
-            console.error("Supabase SDK not loaded on window.supabase. Please check CDN script.");
+            console.error("Supabase SDK not loaded or createClient is not a function. Check CDN script.");
+            // Display an immediate error on the loading screen if Supabase isn't ready
+            document.getElementById('loading-message').textContent = "Fatal Error: Supabase SDK not found. Please check your internet connection or script tags.";
+            const spinner = document.querySelector('#initial-loading-screen .spinner');
+            if (spinner) spinner.style.borderColor = 'red';
+            // Prevent further execution if SDK is missing
+            throw new Error("Supabase SDK not initialized.");
         }
 
-        const SUPABASE_URL = 'https://nhoozjzvkydxwlrshqis.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ob296anp2a3lkeHdscnNocWlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA3NzMyNDEsImV4cCI6MjA2NjM0OTI0MX0.5PfsT7CBIBOIziR8k0FsMPZzW0z7EzVrzFaWvhOIK9M'; // REPLACE WITH YOUR ACTUAL ANON KEY
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        let supabase = null;
         let userId = null;
         let userEmail = null;
         let isAdmin = false;
@@ -481,21 +494,9 @@
         // --- Supabase Initialization ---
         async function initializeSupabase() {
             console.log("Initializing Supabase...");
+            initialLoadingScreen.style.display = 'flex'; // Ensure loading screen is visible
 
             try {
-                if (!createClient) {
-                    console.error("createClient is not available. Supabase SDK might not be loaded correctly.");
-                    loadingMessage.textContent = "Error: Supabase SDK failed to load.";
-                    // Keep loading screen visible if a critical error occurs
-                    initialLoadingScreen.style.display = 'flex';
-                    return;
-                }
-
-                supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                window.supabaseClient = supabase; // Expose for console debugging
-                console.log('Supabase client created and exposed as window.supabaseClient.');
-
-
                 // Listen for auth state changes and render appropriate view
                 supabase.auth.onAuthStateChange(async (event, session) => {
                     console.log("Auth state changed:", event, session ? session.user : 'No session');
@@ -507,6 +508,7 @@
                             await fetchUserProfiles(); // Fetch profiles whenever auth state changes
                             renderMainAppContent(); // Show main app if logged in
                             console.log(`User ${userEmail} (${userId}) is ${isAdmin ? 'an Admin' : 'a Member'}.`);
+                            setupRealtimeProfilesListener(); // NEW: Setup profile listener on login
                         } else {
                             userId = null;
                             userEmail = null;
@@ -514,6 +516,10 @@
                             userProfiles = {}; // Clear profiles on logout
                             renderAuthView(); // Show login page if not logged in
                             console.log('User logged out or session invalid.');
+                            if (window.currentRealtimeProfilesChannel) {
+                                window.currentRealtimeProfilesChannel.unsubscribe(); // Unsubscribe on logout
+                                window.currentRealtimeProfilesChannel = null;
+                            }
                         }
                     } catch (innerError) {
                         console.error("Error in onAuthStateChange callback:", innerError);
@@ -529,7 +535,7 @@
                          }
                     }
                     updateUserInfoDisplay(); // Update user info display immediately
-                    setupRealtimeBooksListener(); // Re-setup listener on auth change
+                    setupRealtimeBooksListener(); // Re-setup listener on auth change (will remove existing channels)
                 });
 
                 // Initial check for existing session
@@ -545,6 +551,7 @@
                     isAdmin = adminUids.includes(userId);
                     await fetchUserProfiles(); // Fetch profiles on initial load if user exists
                     renderMainAppContent();
+                    setupRealtimeProfilesListener(); // NEW: Setup profile listener on initial session
                 } else {
                     console.log("No existing user session on initial load. Showing auth view.");
                     renderAuthView();
@@ -566,7 +573,12 @@
                     .from('profiles')
                     .select('user_id, display_name');
 
-                if (error) throw error;
+                if (error) {
+                    // If no profiles table or RLS prevents read, don't throw, just log.
+                    console.warn("Could not fetch user profiles (RLS issue or table not found):", error.message);
+                    userProfiles = {}; // Ensure it's an empty object even on error
+                    return;
+                }
 
                 userProfiles = {}; // Clear existing profiles
                 data.forEach(profile => {
@@ -574,11 +586,38 @@
                 });
                 console.log("Fetched user profiles:", userProfiles);
             } catch (error) {
-                console.error("Error fetching user profiles:", error.message);
-                // alert("Error fetching user profiles. Check RLS for profiles table."); // Don't block app for this.
+                console.error("Error in fetchUserProfiles catch block:", error.message);
+                userProfiles = {};
             }
         }
 
+        // --- Real-time Profiles Listener ---
+        function setupRealtimeProfilesListener() {
+            if (!supabase) return;
+
+            // Unsubscribe from any previous profile channel to prevent duplicates
+            if (window.currentRealtimeProfilesChannel) {
+                window.currentRealtimeProfilesChannel.unsubscribe();
+                window.currentRealtimeProfilesChannel = null;
+                console.log("Unsubscribed from previous profiles channel.");
+            }
+
+            console.log("Setting up real-time profiles listener.");
+            window.currentRealtimeProfilesChannel = supabase
+                .channel('profiles_changes')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, payload => {
+                    console.log('Real-time profile change received!', payload);
+                    fetchUserProfiles().then(() => {
+                        // After profiles are fetched, re-render all dependent UI parts
+                        updateUserInfoDisplay();
+                        renderBookList(); // Update catalogue to show new names
+                        renderAdminBookList(); // Update admin list to show new names
+                        renderLeaderboard(); // Update leaderboard with new names
+                        renderHomePageContent(); // Update home page content with new names
+                    });
+                })
+                .subscribe();
+        }
 
         // --- Fetch Book Details from Supabase ---
         async function fetchAndRenderBooks() {
@@ -597,7 +636,11 @@
                         added_by
                     `);
 
-                if (error) throw error;
+                if (error) {
+                    console.error("Error fetching books from Supabase:", error);
+                    books = []; // Clear books on error
+                    return; // Stop execution to prevent errors in render functions
+                }
 
                 books = data.map(book => {
                     // Use userProfiles map for display names
@@ -611,13 +654,14 @@
                     };
                 }).sort((a, b) => a.title.localeCompare(b.title)); // Sort alphabetically by title
 
+                // Render all lists that depend on `books` array
                 renderBookList(); // For Catalogue
                 renderAdminBookList(); // For Admin
                 renderLeaderboard(); // For Leaderboard
-                renderHomePageContent(); // New: For Home Page sections
+                renderHomePageContent(); // For Home Page sections
             } catch (error) {
-                console.error("Error fetching books from Supabase:", error);
-                // alert("Error fetching books. Please check Supabase setup and RLS policies."); // Don't block app for this.
+                console.error("Error fetching books from Supabase (catch block):", error);
+                books = [];
             }
         }
 
@@ -627,12 +671,14 @@
 
             console.log("Setting up real-time books listener.");
             // Remove all existing channels to prevent multiple listeners
-            supabase.removeAllChannels();
+            supabase.removeAllChannels(); // This also unsubscribes 'profiles_changes' if it exists.
+                                         // We need to re-subscribe it if necessary.
+            setupRealtimeProfilesListener(); // Re-subscribe profiles listener
 
             supabase
                 .channel('books_changes')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'books' }, payload => {
-                    console.log('Real-time change received!', payload);
+                    console.log('Real-time book change received!', payload);
                     fetchAndRenderBooks(); // Re-fetch all books on any change
                 })
                 .subscribe();
@@ -1032,7 +1078,9 @@
         function renderBookList(booksToDisplay = books) {
             const booksListElement = document.getElementById('books-list');
             const noBooksMessage = document.getElementById('no-books-message');
-            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const searchInput = document.getElementById('search-input'); // Get reference inside the function
+            const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+
 
             if (!booksListElement) {
                 console.warn("Books list element not found (catalogue). Skipping render.");
@@ -1041,7 +1089,8 @@
 
             const filteredBooks = booksToDisplay.filter(book =>
                 book.title.toLowerCase().includes(searchTerm) ||
-                book.author.toLowerCase().includes(searchTerm)
+                book.author.toLowerCase().includes(searchTerm) ||
+                (book.isbn && book.isbn.toLowerCase().includes(searchTerm))
             );
 
             if (filteredBooks.length === 0) {
@@ -1090,7 +1139,8 @@
         function renderAdminBookList() {
             const adminBookListElement = document.getElementById('admin-book-list');
             const noAdminBooksMessage = document.getElementById('no-admin-books-message');
-            const searchTerm = document.getElementById('admin-search-input').value.toLowerCase();
+            const adminSearchInput = document.getElementById('admin-search-input'); // Get reference inside the function
+            const searchTerm = adminSearchInput ? adminSearchInput.value.toLowerCase() : '';
 
             if (!adminBookListElement || !isAdmin) {
                 console.warn("Admin book list element not found or user not admin. Skipping render.");
@@ -1099,7 +1149,8 @@
 
             const filteredBooks = books.filter(book =>
                 book.title.toLowerCase().includes(searchTerm) ||
-                book.author.toLowerCase().includes(searchTerm)
+                book.author.toLowerCase().includes(searchTerm) ||
+                (book.isbn && book.isbn.toLowerCase().includes(searchTerm))
             );
 
             if (filteredBooks.length === 0) {
@@ -1161,7 +1212,7 @@
             const sortedBorrowers = Object.entries(borrowCounts)
                 .sort(([, countA], [, countB]) => countB - countA)
                 .map(([userId, count]) => {
-                    const displayName = userProfiles[userId] || userId;
+                    const displayName = userProfiles[userId] || userId; // Use display name from cache
                     return `<li>${displayName}: ${count} books</li>`;
                 });
 
@@ -1176,8 +1227,16 @@
 
         // --- NEW: Render Home Page Content ---
         function renderHomePageContent() {
-            if (!userId) {
+            if (!userId) { // Only render if user is logged in
                 console.log("Not logged in, skipping home page content render.");
+                // Optionally clear home content if user logs out while on home tab
+                document.getElementById('home-greeting').textContent = '';
+                document.getElementById('your-borrowed-books-list').innerHTML = `<p class="text-gray-500" id="no-borrowed-books-message">You currently have no books borrowed.</p>`;
+                document.getElementById('recently-added-books-list').innerHTML = `<p class="text-gray-500" id="no-recent-books-message">No recently added books to display.</p>`;
+                document.getElementById('stat-total-books').textContent = '0';
+                document.getElementById('stat-borrowed-books').textContent = '0';
+                document.getElementById('stat-available-books').textContent = '0';
+                document.getElementById('stat-unique-borrowers').textContent = '0';
                 return;
             }
             renderUserGreeting();
@@ -1210,7 +1269,7 @@
             } else {
                 if (noBorrowedBooksMessage) noBorrowedBooksMessage.classList.add('hidden');
                 userBorrowedBooksList.innerHTML = borrowedBooks.map(book => `
-                    <div class="book-list-item bg-gray-50 p-4 rounded-lg shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center border border-gray-200">
+                    <div class="book-list-item bg-gray-50 p-4 rounded-lg shadow-sm flex items-center justify-between border border-gray-200">
                         <div>
                             <h3 class="text-lg font-semibold text-gray-900">${book.title}</h3>
                             <p class="text-gray-600 text-sm">by ${book.author}</p>
@@ -1221,6 +1280,7 @@
                     </div>
                 `).join('');
 
+                // Re-attach listeners for dynamically created buttons
                 document.querySelectorAll('#your-borrowed-books-list .borrow-return-btn').forEach(button => {
                     button.addEventListener('click', () => handleBorrowReturn(button.dataset.id, button.dataset.borrowedBy));
                 });
@@ -1268,7 +1328,9 @@
             const totalBooks = books.length;
             const borrowedCount = books.filter(book => book.borrowed_by !== null).length;
             const availableCount = totalBooks - borrowedCount;
+            // Ensure uniqueBorrowers are counted from displayBorrowedBy if available, otherwise raw UIDs
             const uniqueBorrowers = new Set(books.map(book => book.borrowed_by).filter(Boolean)).size;
+
 
             totalBooksEl.textContent = totalBooks;
             borrowedBooksEl.textContent = borrowedCount;
@@ -1277,16 +1339,37 @@
         }
 
         // --- Theme Toggling ---
+        function toggleTheme() {
+            const currentTheme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            applyTheme(newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
         function applyTheme(theme) {
             const body = document.body;
+            // Remove all specific theme classes first to ensure clean state
+            body.classList.remove('light-mode', 'dark-mode');
+
             if (theme === 'dark') {
-                body.classList.remove('light-mode');
                 body.classList.add('dark-mode');
             } else {
-                body.classList.remove('dark-mode');
                 body.classList.add('light-mode');
             }
-            localStorage.setItem('theme', theme);
+
+            // Update theme toggle button text
+            const themeToggleButton = document.getElementById('toggle-theme');
+            if (themeToggleButton) {
+                themeToggleButton.textContent = theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode';
+                // Adjust its background/text color classes directly
+                if (theme === 'light') {
+                    themeToggleButton.classList.remove('bg-gray-700', 'text-gray-200', 'hover:bg-gray-600');
+                    themeToggleButton.classList.add('bg-gray-200', 'text-gray-800', 'hover:bg-gray-300');
+                } else {
+                    themeToggleButton.classList.remove('bg-gray-200', 'text-gray-800', 'hover:bg-gray-300');
+                    themeToggleButton.classList.add('bg-gray-700', 'text-gray-200', 'hover:bg-gray-600');
+                }
+            }
         }
 
         function getPreferredTheme() {
@@ -1305,11 +1388,10 @@
 
             // Initialize global event listeners that are always present after main content is loaded
             // These listeners are on the header elements from family-library-final.html
+            // Re-attaching these here ensures they work even after re-rendering main-content
             document.getElementById('logout-btn').addEventListener('click', handleLogout);
-            document.getElementById('toggle-theme').addEventListener('click', () => {
-                const newTheme = document.body.classList.contains('light-mode') ? 'dark' : 'light';
-                applyTheme(newTheme);
-            });
+            document.getElementById('toggle-theme').addEventListener('click', toggleTheme);
+
 
             // Tab switching logic
             tabs.forEach(tab => {
@@ -1332,10 +1414,9 @@
             // Profile Tab Listener
             document.getElementById('profile-form').addEventListener('submit', handleSetDisplayName);
 
-            // Auth View Listeners
-            document.getElementById('auth-form').addEventListener('submit', (e) => handleAuth(e, false)); // Sign In
-            document.getElementById('signup-btn').addEventListener('click', (e) => handleAuth(e, true)); // Sign Up
-
+            // Auth View Listeners (these are on elements within auth-view, so they need to be attached after auth-view is rendered)
+            // They are now handled directly within renderAuthView.
+            // These lines are redundant here if renderAuthView always recreates and attaches them.
 
             await initializeSupabase(); // Start the Supabase initialization process
         });
