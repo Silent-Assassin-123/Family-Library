@@ -286,15 +286,44 @@
             </nav>
 
             <div id="home" class="tab-panel">
-                <h2 class="text-2xl font-bold text-sub-header-light mb-4">Welcome</h2>
-                <p class="text-gray-700">Welcome to your Family Library application! Use the tabs above to navigate:</p>
-                <ul class="list-disc list-inside text-gray-600 mt-4 space-y-1">
-                    <li><span class="font-semibold">Home:</span> This page.</li>
-                    <li><span class="font-semibold">Catalogue:</span> Browse all available books.</li>
-                    <li><span class="font-semibold">Leaderboard:</span> See who's borrowing the most books.</li>
-                    <li><span class="font-semibold">Manage Books (Admins only):</span> Add, edit, or delete books.</li>
-                    <li><span class="font-semibold">Profile:</span> Manage your display name.</li>
-                </ul>
+                <h2 class="text-3xl font-extrabold text-header-light mb-4" id="home-greeting"></h2>
+                <p class="text-gray-700 mb-6">Welcome to your Family Library application! Here's a quick overview:</p>
+
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold text-sub-header-light mb-3">Your Borrowed Books</h3>
+                    <div id="your-borrowed-books-list" class="space-y-3">
+                        <p class="text-gray-500" id="no-borrowed-books-message">You currently have no books borrowed.</p>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold text-sub-header-light mb-3">Recently Added Books</h3>
+                    <div id="recently-added-books-list" class="space-y-3">
+                        <p class="text-gray-500" id="no-recent-books-message">No recently added books to display.</p>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-bold text-sub-header-light mb-3">Library Statistics</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-gray-700">
+                        <div class="bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-200">
+                            <p class="text-sm text-gray-500">Total Books</p>
+                            <p id="stat-total-books" class="text-2xl font-bold text-purple-700">0</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-200">
+                            <p class="text-sm text-gray-500">Currently Borrowed</p>
+                            <p id="stat-borrowed-books" class="text-2xl font-bold text-yellow-700">0</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-200">
+                            <p class="text-sm text-gray-500">Books Available</p>
+                            <p id="stat-available-books" class="text-2xl font-bold text-green-700">0</p>
+                         </div>
+                         <div class="bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-200">
+                            <p class="text-sm text-gray-500">Unique Borrowers</p>
+                            <p id="stat-unique-borrowers" class="text-2xl font-bold text-purple-700">0</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div id="catalogue" class="tab-panel hidden">
@@ -580,11 +609,12 @@
                         displayBorrowedBy: displayBorrowedBy,
                         displayAddedBy: displayAddedBy
                     };
-                }).sort((a, b) => a.title.localeCompare(b.title));
+                }).sort((a, b) => a.title.localeCompare(b.title)); // Sort alphabetically by title
 
-                renderBookList();
-                renderAdminBookList(); // Also update admin list
-                renderLeaderboard(); // Update leaderboard
+                renderBookList(); // For Catalogue
+                renderAdminBookList(); // For Admin
+                renderLeaderboard(); // For Leaderboard
+                renderHomePageContent(); // New: For Home Page sections
             } catch (error) {
                 console.error("Error fetching books from Supabase:", error);
                 // alert("Error fetching books. Please check Supabase setup and RLS policies."); // Don't block app for this.
@@ -897,6 +927,7 @@
                 renderBookList(); // Update book list to show new name
                 renderAdminBookList(); // Update admin list
                 renderLeaderboard(); // Update leaderboard names
+                renderHomePageContent(); // Update home page content with new display name
             } catch (error) {
                 console.error("Error setting display name:", error);
                 profileMessage.textContent = `Failed to set display name: ${error.message}`;
@@ -940,13 +971,17 @@
 
             // Refresh content for current tab
             const activeTabName = document.querySelector('.tab-btn.tab-active')?.dataset.tab || 'home';
-            if (activeTabName === 'catalogue' || activeTabName === 'admin') {
-                fetchAndRenderBooks(); // This will render both catalogue and admin lists
+            if (activeTabName === 'catalogue') {
+                renderBookList();
+            } else if (activeTabName === 'admin') {
+                renderAdminBookList();
             } else if (activeTabName === 'leaderboard') {
                 renderLeaderboard();
             } else if (activeTabName === 'profile') {
                 const displayNameInput = document.getElementById('display-name-input');
                 displayNameInput.value = userProfiles[userId] || userEmail || '';
+            } else if (activeTabName === 'home') {
+                renderHomePageContent(); // Explicitly call for home page
             }
         }
 
@@ -963,13 +998,17 @@
                 targetPanel.classList.remove("hidden");
                 console.log(`Switched to tab: ${tabName}`);
                 // Re-render content specific to the tab being activated
-                if (tabName === 'catalogue' || tabName === 'admin') {
-                    fetchAndRenderBooks();
+                if (tabName === 'catalogue') {
+                    renderBookList();
+                } else if (tabName === 'admin') {
+                    renderAdminBookList();
                 } else if (tabName === 'leaderboard') {
                     renderLeaderboard();
                 } else if (tabName === 'profile') {
                     document.getElementById('display-name-input').value = userProfiles[userId] || userEmail || '';
                     document.getElementById('profile-message').textContent = ''; // Clear message on tab switch
+                } else if (tabName === 'home') {
+                    renderHomePageContent();
                 }
             } else {
                 console.warn(`Attempted to switch to non-existent tab: ${tabName}`);
@@ -1135,6 +1174,107 @@
             }
         }
 
+        // --- NEW: Render Home Page Content ---
+        function renderHomePageContent() {
+            if (!userId) {
+                console.log("Not logged in, skipping home page content render.");
+                return;
+            }
+            renderUserGreeting();
+            renderUserBorrowedBooks();
+            renderRecentlyAddedBooks();
+            renderLibraryStatistics();
+        }
+
+        // --- NEW: Render User Greeting ---
+        function renderUserGreeting() {
+            const homeGreeting = document.getElementById('home-greeting');
+            const userDisplayName = userProfiles[userId] || userEmail || 'Guest';
+            if (homeGreeting) {
+                homeGreeting.textContent = `Hello, ${userDisplayName}!`;
+            }
+        }
+
+        // --- NEW: Render User Borrowed Books ---
+        function renderUserBorrowedBooks() {
+            const userBorrowedBooksList = document.getElementById('your-borrowed-books-list');
+            const noBorrowedBooksMessage = document.getElementById('no-borrowed-books-message');
+
+            if (!userBorrowedBooksList) return;
+
+            const borrowedBooks = books.filter(book => book.borrowed_by === userId);
+
+            if (borrowedBooks.length === 0) {
+                userBorrowedBooksList.innerHTML = '';
+                if (noBorrowedBooksMessage) noBorrowedBooksMessage.classList.remove('hidden');
+            } else {
+                if (noBorrowedBooksMessage) noBorrowedBooksMessage.classList.add('hidden');
+                userBorrowedBooksList.innerHTML = borrowedBooks.map(book => `
+                    <div class="book-list-item bg-gray-50 p-4 rounded-lg shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center border border-gray-200">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">${book.title}</h3>
+                            <p class="text-gray-600 text-sm">by ${book.author}</p>
+                        </div>
+                        <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 mt-3 sm:mt-0">
+                            <button data-id="${book.id}" data-borrowed-by="${book.borrowed_by}" class="btn-green text-sm py-1 px-3 rounded-md borrow-return-btn">Return</button>
+                        </div>
+                    </div>
+                `).join('');
+
+                document.querySelectorAll('#your-borrowed-books-list .borrow-return-btn').forEach(button => {
+                    button.addEventListener('click', () => handleBorrowReturn(button.dataset.id, button.dataset.borrowedBy));
+                });
+            }
+        }
+
+        // --- NEW: Render Recently Added Books ---
+        function renderRecentlyAddedBooks() {
+            const recentlyAddedBooksList = document.getElementById('recently-added-books-list');
+            const noRecentBooksMessage = document.getElementById('no-recent-books-message');
+
+            if (!recentlyAddedBooksList) return;
+
+            // Sort by last_modified (most recent first) and take top 5
+            const recentBooks = [...books] // Create a shallow copy to avoid modifying original array order
+                .sort((a, b) => new Date(b.last_modified).getTime() - new Date(a.last_modified).getTime())
+                .slice(0, 5); // Limit to 5 recent books
+
+            if (recentBooks.length === 0) {
+                recentlyAddedBooksList.innerHTML = '';
+                if (noRecentBooksMessage) noRecentBooksMessage.classList.remove('hidden');
+            } else {
+                if (noRecentBooksMessage) noRecentBooksMessage.classList.add('hidden');
+                recentlyAddedBooksList.innerHTML = recentBooks.map(book => `
+                    <div class="book-list-item bg-gray-50 p-4 rounded-lg shadow-sm flex items-center justify-between border border-gray-200">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">${book.title}</h3>
+                            <p class="text-gray-600 text-sm">by ${book.author}</p>
+                            <p class="text-gray-500 text-xs">Added: ${new Date(book.last_modified).toLocaleDateString()}</p>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // --- NEW: Render Library Statistics ---
+        function renderLibraryStatistics() {
+            const totalBooksEl = document.getElementById('stat-total-books');
+            const borrowedBooksEl = document.getElementById('stat-borrowed-books');
+            const availableBooksEl = document.getElementById('stat-available-books');
+            const uniqueBorrowersEl = document.getElementById('stat-unique-borrowers');
+
+            if (!totalBooksEl || !borrowedBooksEl || !availableBooksEl || !uniqueBorrowersEl) return;
+
+            const totalBooks = books.length;
+            const borrowedCount = books.filter(book => book.borrowed_by !== null).length;
+            const availableCount = totalBooks - borrowedCount;
+            const uniqueBorrowers = new Set(books.map(book => book.borrowed_by).filter(Boolean)).size;
+
+            totalBooksEl.textContent = totalBooks;
+            borrowedBooksEl.textContent = borrowedCount;
+            availableBooksEl.textContent = availableCount;
+            uniqueBorrowersEl.textContent = uniqueBorrowers;
+        }
 
         // --- Theme Toggling ---
         function applyTheme(theme) {
